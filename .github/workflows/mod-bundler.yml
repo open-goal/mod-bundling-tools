@@ -1,0 +1,231 @@
+name: "Bundle OpenGOAL Mod"
+on:
+  workflow_call:
+    inputs:
+      metadataName:
+        description: "The display name of the mod"
+        required: true
+        type: "string"
+      metadataDescription:
+        description: "The description of the mod"
+        required: true
+        type: "string"
+      metadataAuthors:
+        description: "The authors of the mod, can be comma-separated"
+        required: true
+        type: "string"
+      metadataTags:
+        description: "The tags for the mod, comma separated list where the valid values can be found in the metadata schema"
+        required: true
+        type: "string"
+      metadataWebsiteUrl:
+        description: "A website associated with the mod for more information"
+        required: false
+        default: ""
+        type: "string"
+      outputDir:
+        description: "The directory that the releases assets are created and temporarily stored in. Defaults to ./bundler"
+        required: false
+        default: "./bundler"
+        type: "string"
+      semverBump:
+        description: "What semver bump to use - patch|minor|major. Defaults to patch"
+        required: false
+        default: "patch"
+        type: "string"
+      toolingVersion:
+        description: "The version of `jak-project` to bundle. Defaults to latest version."
+        required: false
+        default: "latest"
+        type: "string"
+      toolingBinaryDir:
+        description: "If provided, will bundle the binaries from this location instead of using the official `jak-project` release."
+        required: false
+        default: ""
+        type: "string"
+      textureReplacementDir:
+        description: "The directory containing texture replacements, defaults to `./texture_replacements`"
+        required: false
+        default: "./texture_replacements"
+        type: "string"
+      customLevelsDir:
+        description: "The directory containing custom levels, defaults to `./custom_levels`"
+        required: false
+        default: "./custom_levels"
+        type: "string"
+      goalSourceDir:
+        description: "The directory containing the OpenGOAL source code, defaults to `./goal_src`"
+        required: false
+        default: "./goal_src"
+        type: "string"
+      skipWindows:
+        description: "Whether to skip Windows builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
+      skipLinux:
+        description: "Whether to skip Linux builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
+    secrets:
+      token:
+        description: "GitHub token used to create the release and push assets to it."
+        required: true
+    outputs:
+      taggedVersion:
+        description: "The version that was tagged and pushed for the mod"
+        value: ${{ jobs.create-release.outputs.bundleTagName }}
+jobs:
+  create-release:
+    name: "Create Release"
+    runs-on: ubuntu-latest
+    outputs:
+      bundleTagName: ${{ steps.tag_version.outputs.new_tag }}
+    steps:
+      - name: Bump Version and Push Tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.token }}
+          tag_prefix: v
+          default_bump: ${{ inputs.semverBump }}
+          append_to_pre_release_tag: ""
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: gh release create ${{ steps.tag_version.outputs.new_tag }} --generate-notes --draft --repo ${{ github.repository }}
+
+  create-windows-bundle:
+    name: "Windows Bundle"
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        if: ${{ !inputs.skipWindows }}
+        uses: actions/checkout@v3
+
+      - name: "Checkout Workflow Scripts"
+        if: ${{ !inputs.skipWindows }}
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create Windows Release"
+        if: ${{ !inputs.skipWindows }}
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+          toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          textureReplacementDir: ${{ inputs.textureReplacementDir }}
+          customLevelsDir: ${{ inputs.customLevelsDir }}
+          goalSourceDir: ${{ inputs.goalSourceDir }}
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-windows.py
+
+      - name: Upload Bundle
+        if: ${{ !inputs.skipWindows }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  create-linux-bundle:
+    name: "Linux Bundle"
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        if: ${{ !inputs.skipLinux }}
+        uses: actions/checkout@v3
+
+      - name: "Checkout Workflow Scripts"
+        if: ${{ !inputs.skipWindows }}
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create Linux Release"
+        if: ${{ !inputs.skipLinux }}
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+          toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          textureReplacementDir: ${{ inputs.textureReplacementDir }}
+          customLevelsDir: ${{ inputs.customLevelsDir }}
+          goalSourceDir: ${{ inputs.goalSourceDir }}
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-linux.py
+
+      - name: Upload Bundle
+        if: ${{ !inputs.skipLinux }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  finalize-release:
+    name: "Finalize Release"
+    needs: [create-release, create-windows-bundle, create-linux-bundle]
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: Prepare Output Folder
+        run: mkdir -p ${{ inputs.outputDir }}/dist
+
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ inputs.outputDir }}/artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ${{ inputs.outputDir }}
+
+      - name: Prepare Release Assets
+        env:
+          SCHEMA_VERSION: "0.1.0"
+          NAME: ${{ inputs.metadataName }}
+          DESCRIPTION: ${{ inputs.metadataDescription }}
+          AUTHORS: ${{ inputs.metadataAuthors }}
+          TAGS: ${{ inputs.metadataTags }}
+          WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}
+        run: |
+          mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
+          mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          OUT_DIR="${{ inputs.outputDir }}/dist" VERSION="${TAG_VAL}" python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
+
+      - name: Validating Metadata
+        run: |
+          npm install -g ajv-cli
+          ajv validate -s ./__actions/mod-bundling-tools/schemas/mods/v1/mod-schema.v1.json -d ${{ inputs.outputDir }}/dist/metadata.json
+
+      - name: Upload Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: |
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          gh release upload "${TAG_VAL}" ${{ github.WORKSPACE }}/${{ inputs.outputDir }}/dist/* --repo ${{ github.repository }} --clobber
+
+      - name: Publish Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: |
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          gh release edit ${TAG_VAL} --draft=false --repo ${{ github.repository }}
