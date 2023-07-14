@@ -30,7 +30,7 @@ on:
       customLevelsDir:
         description: "The directory containing custom levels, defaults to `./custom_levels`"
         required: false
-        default: "./texture_replacements"
+        default: "./custom_levels"
         type: "string"
       goalSourceDir:
         description: "The directory containing the OpenGOAL source code, defaults to `./goal_src`"
@@ -52,11 +52,12 @@ on:
         description: "GitHub token used to create the release and push assets to it."
         required: true
     outputs:
-      version:
+      taggedVersion:
         description: "The version that was tagged and pushed for the mod"
-        value: ${{ steps.random-number-generator.outputs.random-number }}
+        value: ${{ jobs.create-release.outputs.bundleTagName }}
 jobs:
-  create-tag:
+  create-release:
+    name: "Create Release"
     runs-on: ubuntu-latest
     outputs:
       bundleTagName: ${{ steps.tag_version.outputs.new_tag }}
@@ -68,6 +69,7 @@ jobs:
           github_token: ${{ secrets.token }}
           tag_prefix: v
           default_bump: ${{ inputs.semverBump }}
+          append_to_pre_release_tag: ""
 
       - name: Create Release
         env:
@@ -75,26 +77,27 @@ jobs:
         run: gh release create ${{ steps.tag_version.outputs.new_tag }} --generate-notes --draft --repo ${{ github.repository }}
 
   create-windows-bundle:
-    needs: create-tag
+    name: "Windows Bundle"
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        if: (inputs.skipWindows == 'false')
+        if: ${{ !inputs.skipWindows }}
         uses: actions/checkout@v3
 
       - name: "Checkout Workflow Scripts"
-        if: (inputs.skipWindows == 'false')
+        if: ${{ !inputs.skipWindows }}
         uses: actions/checkout@v3
         with:
-          repository: "jak-project/mod-bundler-gha"
+          repository: "open-goal/mod-bundling"
           ref: ${{ github.event.inputs.ref }}
-          path: "__actions/mod-bundler-gha"
+          path: "__actions/mod-bundling"
 
       - name: "Create Windows Release"
-        if: (inputs.skipWindows == 'false')
+        if: ${{ !inputs.skipWindows }}
         env:
           outputDir: ${{ inputs.outputDir }}
-          versionName: ${{ needs.create-tag.outputs.bundleTagName }}
+          versionName: ${{ needs.create-release.outputs.bundleTagName }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
@@ -104,6 +107,7 @@ jobs:
           python ./__actions/mod-bundler-gha/scripts/bundle-windows.py
 
       - name: Upload Bundle
+        if: ${{ !inputs.skipWindows }}
         uses: actions/upload-artifact@v3
         with:
           name: windows
@@ -111,26 +115,27 @@ jobs:
           path: ${{ inputs.outputDir }}/dist
 
   create-linux-bundle:
-    needs: create-tag
+    name: "Linux Bundle"
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        if: (inputs.skipLinux == 'false')
+        if: ${{ !inputs.skipLinux }}
         uses: actions/checkout@v3
 
       - name: "Checkout Workflow Scripts"
-        if: (inputs.skipLinux == 'false')
+        if: ${{ !inputs.skipWindows }}
         uses: actions/checkout@v3
         with:
-          repository: "jak-project/mod-bundler-gha"
+          repository: "open-goal/mod-bundling"
           ref: ${{ github.event.inputs.ref }}
-          path: "__actions/mod-bundler-gha"
+          path: "__actions/mod-bundling"
 
       - name: "Create Linux Release"
-        if: (inputs.skipLinux == 'false')
+        if: ${{ !inputs.skipLinux }}
         env:
           outputDir: ${{ inputs.outputDir }}
-          versionName: ${{ needs.create-tag.outputs.bundleTagName }}
+          versionName: ${{ needs.create-release.outputs.bundleTagName }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
@@ -140,6 +145,7 @@ jobs:
           python ./__actions/mod-bundler-gha/scripts/bundle-linux.py
 
       - name: Upload Bundle
+        if: ${{ !inputs.skipLinux }}
         uses: actions/upload-artifact@v3
         with:
           name: linux
@@ -147,7 +153,8 @@ jobs:
           path: ${{ inputs.outputDir }}/dist
 
   finalize-release:
-    needs: [create-windows-bundle, create-linux-bundle]
+    name: "Finalize Release"
+    needs: [create-release, create-windows-bundle, create-linux-bundle]
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Output Folder
@@ -156,13 +163,23 @@ jobs:
       - name: Download all Artifacts
         uses: actions/download-artifact@v3
         with:
-          path: ${{ inputs.outputDir }}/dist
+          path: ${{ inputs.outputDir }}/artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ${{ inputs.outputDir }}
+
+      - name: Prepare Release Assets
+        run: |
+          mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
+          mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
+
+      # TODO - generate metadata JSON file to describe the mod
 
       - name: Upload Assets
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         run: |
-          TAG_VAL=${{ needs.create-tag.outputs.bundleTagName }}
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
           echo $TAG_VAL
           gh release upload "${TAG_VAL}" ${{ github.WORKSPACE }}/${{ inputs.outputDir }}/dist/* --repo ${{ github.repository }} --clobber
 
@@ -170,6 +187,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         run: |
-          TAG_VAL=${{ needs.create-tag.outputs.bundleTagName }}
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
           echo $TAG_VAL
           gh release edit ${TAG_VAL} --draft=false --repo ${{ github.repository }}

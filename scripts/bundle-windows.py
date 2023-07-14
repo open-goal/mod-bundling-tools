@@ -11,22 +11,24 @@ args = {
     "toolingBinaryDir": os.getenv("toolingBinaryDir"),
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
-    "goalSourceDir": os.getenv("goalSourceDir")
+    "goalSourceDir": os.getenv("goalSourceDir"),
 }
 
+print(args)
+
 # Create our output directory
-if os.path.exists(os.path.join(args.outputDir, "windows")):
+if os.path.exists(os.path.join(args["outputDir"], "windows")):
     print(
         "Expected output directory already exists, clearing it - {}".format(
-            os.path.join(args.outputDir, "windows")
+            os.path.join(args["outputDir"], "windows")
         )
     )
-    os.rmdir(os.path.join(args.outputDir, "windows"))
+    os.rmdir(os.path.join(args["outputDir"], "windows"))
 
-os.makedirs(os.path.join(args.outputDir, "windows"), exist_ok=True)
+os.makedirs(os.path.join(args["outputDir"], "windows"), exist_ok=True)
 
 # Download the Release
-toolingVersion = args.toolingVersion
+toolingVersion = args["toolingVersion"]
 if toolingVersion == "latest":
     # Get the latest open-goal/jak-project release
     toolingVersion = requests.get(
@@ -36,20 +38,20 @@ releaseAssetUrl = "https://github.com/open-goal/jak-project/releases/download/{}
     toolingVersion, toolingVersion
 )
 urllib.request.urlretrieve(
-    releaseAssetUrl, os.path.join(args.outputDir, "windows", "release.zip")
+    releaseAssetUrl, os.path.join(args["outputDir"], "windows", "release.zip")
 )
 
 # Extract it
 with zipfile.ZipFile(
-    os.path.join(args.outputDir, "windows", "release.zip"), "r"
+    os.path.join(args["outputDir"], "windows", "release.zip"), "r"
 ) as zip_ref:
-    zip_ref.extractall(os.path.join(args.outputDir, "windows"))
-os.remove(os.path.join(args.outputDir, "windows", "release.zip"))
+    zip_ref.extractall(os.path.join(args["outputDir"], "windows"))
+os.remove(os.path.join(args["outputDir"], "windows", "release.zip"))
 
 
-if args.toolingBinaryDir != "":
+if args["toolingBinaryDir"] != "":
     # User is specifying the binaries themselves, let's make sure they exist
-    dir = args.toolingBinaryDir
+    dir = args["toolingBinaryDir"]
     if (
         not os.path.exists(os.path.join(dir, "extractor.exe"))
         or not os.path.exists(os.path.join(dir, "goalc.exe"))
@@ -62,49 +64,61 @@ if args.toolingBinaryDir != "":
     # Binaries are all there, let's replace 'em
     shutil.copyfile(
         os.path.join(dir, "extractor.exe"),
-        os.path.join(args.outputDir, "windows", "extractor.exe"),
+        os.path.join(args["outputDir"], "windows", "extractor.exe"),
     )
     shutil.copyfile(
         os.path.join(dir, "goalc.exe"),
-        os.path.join(args.outputDir, "windows", "goalc.exe"),
+        os.path.join(args["outputDir"], "windows", "goalc.exe"),
     )
     shutil.copyfile(
-        os.path.join(dir, "gk.exe"), os.path.join(args.outputDir, "windows", "gk.exe")
+        os.path.join(dir, "gk.exe"),
+        os.path.join(args["outputDir"], "windows", "gk.exe"),
     )
 
 # Copy-in Mod Assets
-textureReplacementDir = args.textureReplacementDir
-shutil.copytree(
-    textureReplacementDir,
-    os.path.join(args.outputDir, "windows", "data", "texture_replacements"),
-    dirs_exist_ok=True,
-)
+textureReplacementDir = args["textureReplacementDir"]
+if os.path.exists(textureReplacementDir):
+    shutil.copytree(
+        textureReplacementDir,
+        os.path.join(args["outputDir"], "windows", "data", "texture_replacements"),
+        dirs_exist_ok=True,
+    )
 
-customLevelsDir = args.customLevelsDir
-shutil.copytree(
-    customLevelsDir,
-    os.path.join(args.outputDir, "windows", "data", "custom_levels"),
-    dirs_exist_ok=True,
-)
+customLevelsDir = args["customLevelsDir"]
+if os.path.exists(customLevelsDir):
+    shutil.copytree(
+        customLevelsDir,
+        os.path.join(args["outputDir"], "windows", "data", "custom_levels"),
+        dirs_exist_ok=True,
+    )
 
-goalSourceDir = args.goalSourceDir
+goalSourceDir = args["goalSourceDir"]
+if not os.path.exists(goalSourceDir):
+    print(
+        "Goal source directory not found at {}, not much of a mod without that!".format(
+            goalSourceDir
+        )
+    )
+    exit(1)
 shutil.copytree(
     goalSourceDir,
-    os.path.join(args.outputDir, "windows", "data", "goal_src"),
+    os.path.join(args["outputDir"], "windows", "data", "goal_src"),
     dirs_exist_ok=True,
 )
 
 # Rezip it up and prepare it for upload
 shutil.make_archive(
-    "windows-{}".format(args.versionName),
+    "windows-{}".format(args["versionName"]),
     "zip",
-    os.path.join(args.outputDir, "windows"),
+    os.path.join(args["outputDir"], "windows"),
 )
-os.makedirs(os.path.join(args.outputDir, "dist"), exist_ok=True)
+os.makedirs(os.path.join(args["outputDir"], "dist"), exist_ok=True)
 shutil.move(
-    "windows-{}.zip".format(args.versionName),
-    os.path.join(args.outputDir, "dist", "windows-{}.zip".format(args.versionName)),
+    "windows-{}.zip".format(args["versionName"]),
+    os.path.join(
+        args["outputDir"], "dist", "windows-{}.zip".format(args["versionName"])
+    ),
 )
 
 # Cleanup
-shutil.rmtree(os.path.join(args.outputDir, "windows"))
+shutil.rmtree(os.path.join(args["outputDir"], "windows"))
