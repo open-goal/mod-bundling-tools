@@ -110,9 +110,9 @@ jobs:
         if: ${{ !inputs.skipWindows }}
         uses: actions/checkout@v3
         with:
-          repository: "open-goal/mod-bundling"
+          repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
-          path: "__actions/mod-bundling"
+          path: "__actions/mod-bundling-tools"
 
       - name: "Create Windows Release"
         if: ${{ !inputs.skipWindows }}
@@ -124,7 +124,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
-        run: python ./__actions/mod-bundler-gha/scripts/mod-bundler/bundle-windows.py
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-windows.py
 
       - name: Upload Bundle
         if: ${{ !inputs.skipWindows }}
@@ -147,9 +147,9 @@ jobs:
         if: ${{ !inputs.skipWindows }}
         uses: actions/checkout@v3
         with:
-          repository: "open-goal/mod-bundling"
+          repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
-          path: "__actions/mod-bundling"
+          path: "__actions/mod-bundling-tools"
 
       - name: "Create Linux Release"
         if: ${{ !inputs.skipLinux }}
@@ -161,7 +161,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
-        run: python ./__actions/mod-bundler-gha/scripts/mod-bundler/bundle-linux.py
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-linux.py
 
       - name: Upload Bundle
         if: ${{ !inputs.skipLinux }}
@@ -176,6 +176,13 @@ jobs:
     needs: [create-release, create-windows-bundle, create-linux-bundle]
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
       - name: Prepare Output Folder
         run: mkdir -p ${{ inputs.outputDir }}/dist
 
@@ -189,7 +196,7 @@ jobs:
 
       - name: Prepare Release Assets
         env:
-          SCHEMA_VERSION: "0.1.0",
+          SCHEMA_VERSION: "0.1.0"
           NAME: ${{ inputs.metadataName }}
           DESCRIPTION: ${{ inputs.metadataDescription }}
           AUTHORS: ${{ inputs.metadataAuthors }}
@@ -200,7 +207,12 @@ jobs:
           mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
           TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
           echo $TAG_VAL
-          OUT_DIR="${{ inputs.outputDir }}/dist" VERSION="${TAG_VAL}" python ./__actions/mod-bundler/scripts/mod-bundler/emit-metadata.py
+          OUT_DIR="${{ inputs.outputDir }}/dist" VERSION="${TAG_VAL}" python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
+
+      - name: Validating Metadata
+        run: |
+          npm install -g ajv-cli
+          ajv validate -s ./__actions/mod-bundling-tools/schemas/mods/v1/mod-schema.v1.json -d ${{ inputs.outputDir }}/dist/metadata.json
 
       - name: Upload Assets
         env:
