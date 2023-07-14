@@ -2,6 +2,27 @@ name: "Bundle OpenGOAL Mod"
 on:
   workflow_call:
     inputs:
+      metadataName:
+        description: "The display name of the mod"
+        required: true
+        type: "string"
+      metadataDescription:
+        description: "The description of the mod"
+        required: true
+        type: "string"
+      metadataAuthors:
+        description: "The authors of the mod, can be comma-separated"
+        required: true
+        type: "string"
+      metadataTags:
+        description: "The tags for the mod, comma separated list where the valid values can be found in the metadata schema"
+        required: true
+        type: "string"
+      metadataWebsiteUrl:
+        description: "A website associated with the mod for more information"
+        required: false
+        default: ""
+        type: "string"
       outputDir:
         description: "The directory that the releases assets are created and temporarily stored in. Defaults to ./bundler"
         required: false
@@ -103,8 +124,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
-        run: |
-          python ./__actions/mod-bundler-gha/scripts/bundle-windows.py
+        run: python ./__actions/mod-bundler-gha/scripts/mod-bundler/bundle-windows.py
 
       - name: Upload Bundle
         if: ${{ !inputs.skipWindows }}
@@ -141,8 +161,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
-        run: |
-          python ./__actions/mod-bundler-gha/scripts/bundle-linux.py
+        run: python ./__actions/mod-bundler-gha/scripts/mod-bundler/bundle-linux.py
 
       - name: Upload Bundle
         if: ${{ !inputs.skipLinux }}
@@ -169,11 +188,19 @@ jobs:
         run: ls -Rl ${{ inputs.outputDir }}
 
       - name: Prepare Release Assets
+        env:
+          SCHEMA_VERSION: "0.1.0",
+          NAME: ${{ inputs.metadataName }}
+          DESCRIPTION: ${{ inputs.metadataDescription }}
+          AUTHORS: ${{ inputs.metadataAuthors }}
+          TAGS: ${{ inputs.metadataTags }}
+          WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}
         run: |
           mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
           mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
-
-      # TODO - generate metadata JSON file to describe the mod
+          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          OUT_DIR="${{ inputs.outputDir }}/dist" VERSION="${TAG_VAL}" python ./__actions/mod-bundler/scripts/mod-bundler/emit-metadata.py
 
       - name: Upload Assets
         env:
