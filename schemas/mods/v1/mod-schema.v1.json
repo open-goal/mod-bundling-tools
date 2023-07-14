@@ -1,0 +1,64 @@
+{
+  "$ref": "#/definitions/ModMetadata",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ModMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "authors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "publishedDate": {
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        },
+        "tags": {
+          "items": {
+            "enum": [
+              "challenge",
+              "rng",
+              "gameplay",
+              "speedrunning",
+              "textures",
+              "beta",
+              "multiplayer",
+              "practice",
+              "custom-enemy"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        },
+        "websiteUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "version",
+        "name",
+        "description",
+        "authors",
+        "tags",
+        "publishedDate"
+      ],
+      "type": "object"
+    }
+  }
+}
