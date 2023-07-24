@@ -5,18 +5,34 @@
 //     description?: string,
 // }
 
-type ValidTags = "challenge" | "rng" | "gameplay" | "speedrunning" | "textures" | "beta" | "multiplayer" | "practice" | "custom-enemy";
+/**
+ * Semantic Version
+ * @pattern ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+ */
+type Semver = string;
+
+type SupportedGame = "jak1" | "jak2" | "jak3" | "jakx";
+
+type ValidTags =
+  | "challenge"
+  | "rng"
+  | "gameplay"
+  | "speedrunning"
+  | "textures"
+  | "beta"
+  | "multiplayer"
+  | "practice"
+  | "custom-enemy";
 
 export interface ModMetadata {
-    // valid semver
-    schemaVersion: string,
-    // valid semver
-    version: string,
-    name: string,
-    description: string,
-    authors: string[],
-    // changelog: ChangelogEntry[], TODO eventually
-    tags: ValidTags[],
-    publishedDate: string,
-    websiteUrl?: string
+  schemaVersion: Semver;
+  version: Semver;
+  name: string;
+  description: string;
+  authors: string[];
+  // changelog: ChangelogEntry[], TODO eventually
+  tags: ValidTags[];
+  publishedDate: string;
+  websiteUrl?: string;
+  supportedGames: SupportedGame[];
 }
