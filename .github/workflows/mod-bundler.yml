@@ -193,7 +193,7 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
           path: "__actions/mod-bundling-tools"
 
-      - name: "Create Linux Release"
+      - name: "Create MacOS Intel Release"
         if: ${{ !inputs.skipMacOS }}
         env:
           outputDir: ${{ inputs.outputDir }}
@@ -215,7 +215,7 @@ jobs:
 
   finalize-release:
     name: "Finalize Release"
-    needs: [create-release, create-windows-bundle, create-linux-bundle]
+    needs: [create-release, create-windows-bundle, create-linux-bundle, create-macos-intel-bundle]
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Workflow Scripts"

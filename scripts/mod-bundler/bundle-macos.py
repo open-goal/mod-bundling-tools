@@ -112,7 +112,7 @@ shutil.make_archive(
 )
 os.makedirs(os.path.join(args["outputDir"], "dist"), exist_ok=True)
 shutil.move(
-    "macos-{}.tar.gz".format(args["versionName"]),
+    "macos-intel-{}.tar.gz".format(args["versionName"]),
     os.path.join(
         args["outputDir"], "dist", "macos-intel-{}.tar.gz".format(args["versionName"])
     ),
