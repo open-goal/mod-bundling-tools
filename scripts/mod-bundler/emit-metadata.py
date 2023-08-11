@@ -11,7 +11,7 @@ def split_comma_sep_val(str):
 
 metadata = {
     "schemaVersion": os.getenv("SCHEMA_VERSION"),
-    "version": os.getenv("VERSION"),
+    "version": os.getenv("VERSION").removeprefix("v"),
     "name": os.getenv("NAME"),
     "description": os.getenv("DESCRIPTION"),
     "supportedGames": split_comma_sep_val(os.getenv("SUPPORTED_GAMES")),
@@ -23,4 +23,5 @@ if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
 
 with open("{}/metadata.json".format(os.getenv("OUT_DIR")), "w", encoding="utf-8") as f:
+    print("Writing the following metadata: {}".format(json.dumps(metadata, indent=2, ensure_ascii=False)))
     f.write(json.dumps(metadata, indent=2, ensure_ascii=False))

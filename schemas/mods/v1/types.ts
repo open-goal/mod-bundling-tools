@@ -14,15 +14,16 @@ type Semver = string;
 type SupportedGame = "jak1" | "jak2" | "jak3" | "jakx";
 
 type ValidTags =
-  | "challenge"
-  | "rng"
-  | "gameplay"
-  | "speedrunning"
-  | "textures"
   | "beta"
+  | "challenge"
+  | "custom-enemy"
+  | "custom-level"
+  | "gameplay-mod"
   | "multiplayer"
   | "practice"
-  | "custom-enemy";
+  | "rng"
+  | "speedrunning"
+  | "texture-mod";
 
 export interface ModMetadata {
   schemaVersion: Semver;

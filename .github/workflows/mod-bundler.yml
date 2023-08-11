@@ -250,13 +250,12 @@ jobs:
           AUTHORS: ${{ inputs.metadataAuthors }}
           TAGS: ${{ inputs.metadataTags }}
           WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}
+          OUT_DIR: "${{ inputs.outputDir }}/dist"
         run: |
           mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
           mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
           mv ${{ inputs.outputDir }}/artifacts/macos-intel/* ${{ inputs.outputDir }}/dist
-          TAG_VAL=${{ needs.create-release.outputs.bundleTagName }}
-          echo $TAG_VAL
-          OUT_DIR="${{ inputs.outputDir }}/dist" VERSION="${TAG_VAL}" python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
+          python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
 
       - name: Validating Metadata
         run: |
