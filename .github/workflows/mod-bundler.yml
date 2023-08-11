@@ -243,6 +243,7 @@ jobs:
       - name: Prepare Release Assets
         env:
           SCHEMA_VERSION: "0.1.0"
+          VERSION: ${{ needs.create-release.outputs.bundleTagName }}
           NAME: ${{ inputs.metadataName }}
           DESCRIPTION: ${{ inputs.metadataDescription }}
           SUPPORTED_GAMES: ${{ inputs.metadataSupportedGames }}
