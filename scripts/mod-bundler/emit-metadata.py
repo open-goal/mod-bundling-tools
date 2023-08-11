@@ -1,6 +1,8 @@
 # Simple script to emit a metadata.json file with the relevant mod information
 # Values are passed in as environment variables
 from datetime import datetime
+import json
+import os
 
 def split_comma_sep_val(str):
     if "," not in str:
