@@ -68,6 +68,11 @@ on:
         required: false
         default: false
         type: "boolean"
+      skipMacOS:
+        description: "Whether to skip macOS builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
     secrets:
       token:
         description: "GitHub token used to create the release and push assets to it."
@@ -165,6 +170,43 @@ jobs:
 
       - name: Upload Bundle
         if: ${{ !inputs.skipLinux }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  create-macos-intel-bundle:
+    name: "macOS Intel Bundle"
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        if: ${{ !inputs.skipMacOS }}
+        uses: actions/checkout@v3
+
+      - name: "Checkout Workflow Scripts"
+        if: ${{ !inputs.skipMacOS }}
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create Linux Release"
+        if: ${{ !inputs.skipMacOS }}
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+          toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          textureReplacementDir: ${{ inputs.textureReplacementDir }}
+          customLevelsDir: ${{ inputs.customLevelsDir }}
+          goalSourceDir: ${{ inputs.goalSourceDir }}
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-macos.py
+
+      - name: Upload Bundle
+        if: ${{ !inputs.skipMacOS }}
         uses: actions/upload-artifact@v3
         with:
           name: linux
