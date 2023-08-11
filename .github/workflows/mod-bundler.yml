@@ -86,8 +86,39 @@ on:
         description: "The version that was tagged and pushed for the mod"
         value: ${{ jobs.create-release.outputs.bundleTagName }}
 jobs:
+  validate-metadata:
+    name: "Validate Metadata"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v3
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Validate Metadata"
+        env:
+          SCHEMA_VERSION: "0.1.0"
+          VERSION: "v0.0.0"
+          NAME: ${{ inputs.metadataName }}
+          DESCRIPTION: ${{ inputs.metadataDescription }}
+          SUPPORTED_GAMES: ${{ inputs.metadataSupportedGames }}
+          AUTHORS: ${{ inputs.metadataAuthors }}
+          TAGS: ${{ inputs.metadataTags }}
+          WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}
+          OUT_DIR: "/tmp"
+        run: |
+          python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
+
+      - name: Validating Metadata
+        run: |
+          npm install -g ajv-cli
+          ajv validate -s ./__actions/mod-bundling-tools/schemas/mods/v1/mod-schema.v1.json -d /tmp/metadata.json
+
   create-release:
     name: "Create Release"
+    needs: validate-metadata
     runs-on: ubuntu-latest
     outputs:
       bundleTagName: ${{ steps.tag_version.outputs.new_tag }}
