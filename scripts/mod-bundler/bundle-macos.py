@@ -18,15 +18,15 @@ args = {
 print(args)
 
 # Create our output directory
-if os.path.exists(os.path.join(args["outputDir"], "macos")):
+if os.path.exists(os.path.join(args["outputDir"], "macos-intel")):
     print(
         "Expected output directory already exists, clearing it - {}".format(
-            os.path.join(args["outputDir"], "macos")
+            os.path.join(args["outputDir"], "macos-intel")
         )
     )
-    os.rmdir(os.path.join(args["outputDir"], "macos"))
+    os.rmdir(os.path.join(args["outputDir"], "macos-intel"))
 
-os.makedirs(os.path.join(args["outputDir"], "macos"), exist_ok=True)
+os.makedirs(os.path.join(args["outputDir"], "macos-intel"), exist_ok=True)
 
 # Download the Release
 toolingVersion = args["toolingVersion"]
@@ -39,15 +39,15 @@ releaseAssetUrl = "https://github.com/open-goal/jak-project/releases/download/{}
     toolingVersion, toolingVersion
 )
 urllib.request.urlretrieve(
-    releaseAssetUrl, os.path.join(args["outputDir"], "macos", "release.tar.gz")
+    releaseAssetUrl, os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
 )
 
 # Extract it
 with tarfile.open(
-    os.path.join(args["outputDir"], "macos", "release.tar.gz")
+    os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
 ) as tar_ball:
-    tar_ball.extractall(os.path.join(args["outputDir"], "macos"))
-os.remove(os.path.join(args["outputDir"], "macos", "release.tar.gz"))
+    tar_ball.extractall(os.path.join(args["outputDir"], "macos-intel"))
+os.remove(os.path.join(args["outputDir"], "macos-intel", "release.tar.gz"))
 
 
 if args["toolingBinaryDir"] != "":
@@ -63,25 +63,25 @@ if args["toolingBinaryDir"] != "":
     # Binaries are all there, let's replace 'em
     shutil.copyfile(
         os.path.join(dir, "extractor"),
-        os.path.join(args["outputDir"], "macos", "extractor"),
+        os.path.join(args["outputDir"], "macos-intel", "extractor"),
     )
-    os.chmod(os.path.join(args["outputDir"], "macos", "extractor"), 0o775)
+    os.chmod(os.path.join(args["outputDir"], "macos-intel", "extractor"), 0o775)
     shutil.copyfile(
         os.path.join(dir, "goalc"),
-        os.path.join(args["outputDir"], "macos", "goalc"),
+        os.path.join(args["outputDir"], "macos-intel", "goalc"),
     )
-    os.chmod(os.path.join(args["outputDir"], "macos", "goalc"), 0o775)
+    os.chmod(os.path.join(args["outputDir"], "macos-intel", "goalc"), 0o775)
     shutil.copyfile(
-        os.path.join(dir, "gk"), os.path.join(args["outputDir"], "macos", "gk")
+        os.path.join(dir, "gk"), os.path.join(args["outputDir"], "macos-intel", "gk")
     )
-    os.chmod(os.path.join(args["outputDir"], "macos", "gk"), 0o775)
+    os.chmod(os.path.join(args["outputDir"], "macos-intel", "gk"), 0o775)
 
 # Copy-in Mod Assets
 textureReplacementDir = args["textureReplacementDir"]
 if os.path.exists(textureReplacementDir):
     shutil.copytree(
         textureReplacementDir,
-        os.path.join(args["outputDir"], "windows", "data", "texture_replacements"),
+        os.path.join(args["outputDir"], "macos-intel", "data", "texture_replacements"),
         dirs_exist_ok=True,
     )
 
@@ -89,7 +89,7 @@ customLevelsDir = args["customLevelsDir"]
 if os.path.exists(customLevelsDir):
     shutil.copytree(
         customLevelsDir,
-        os.path.join(args["outputDir"], "windows", "data", "custom_levels"),
+        os.path.join(args["outputDir"], "macos-intel", "data", "custom_levels"),
         dirs_exist_ok=True,
     )
 
@@ -103,7 +103,7 @@ if not os.path.exists(goalSourceDir):
     exit(1)
 shutil.copytree(
     goalSourceDir,
-    os.path.join(args["outputDir"], "macos", "data", "goal_src"),
+    os.path.join(args["outputDir"], "macos-intel", "data", "goal_src"),
     dirs_exist_ok=True,
 )
 
@@ -111,7 +111,7 @@ shutil.copytree(
 shutil.make_archive(
     "macos-intel-{}".format(args["versionName"]),
     "gztar",
-    os.path.join(args["outputDir"], "macos"),
+    os.path.join(args["outputDir"], "macos-intel"),
 )
 os.makedirs(os.path.join(args["outputDir"], "dist"), exist_ok=True)
 shutil.move(
@@ -122,4 +122,4 @@ shutil.move(
 )
 
 # Cleanup
-shutil.rmtree(os.path.join(args["outputDir"], "macos"))
+shutil.rmtree(os.path.join(args["outputDir"], "macos-intel"))

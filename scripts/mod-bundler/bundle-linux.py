@@ -81,7 +81,7 @@ textureReplacementDir = args["textureReplacementDir"]
 if os.path.exists(textureReplacementDir):
     shutil.copytree(
         textureReplacementDir,
-        os.path.join(args["outputDir"], "windows", "data", "texture_replacements"),
+        os.path.join(args["outputDir"], "linux", "data", "texture_replacements"),
         dirs_exist_ok=True,
     )
 
@@ -89,7 +89,7 @@ customLevelsDir = args["customLevelsDir"]
 if os.path.exists(customLevelsDir):
     shutil.copytree(
         customLevelsDir,
-        os.path.join(args["outputDir"], "windows", "data", "custom_levels"),
+        os.path.join(args["outputDir"], "linux", "data", "custom_levels"),
         dirs_exist_ok=True,
     )
 
