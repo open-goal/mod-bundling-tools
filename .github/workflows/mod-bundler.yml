@@ -10,6 +10,10 @@ on:
         description: "The description of the mod"
         required: true
         type: "string"
+      metadataSupportedGames:
+        description: "The supported games for the mod, can be comma-separated, supports `jak1|jak2|jak3|jakx`"
+        required: true
+        type: "string"
       metadataAuthors:
         description: "The authors of the mod, can be comma-separated"
         required: true
@@ -241,6 +245,7 @@ jobs:
           SCHEMA_VERSION: "0.1.0"
           NAME: ${{ inputs.metadataName }}
           DESCRIPTION: ${{ inputs.metadataDescription }}
+          SUPPORTED_GAMES: ${{ inputs.metadataSupportedGames }}
           AUTHORS: ${{ inputs.metadataAuthors }}
           TAGS: ${{ inputs.metadataTags }}
           WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}

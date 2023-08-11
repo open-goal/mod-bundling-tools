@@ -14,9 +14,10 @@ metadata = {
     "version": os.getenv("VERSION"),
     "name": os.getenv("NAME"),
     "description": os.getenv("DESCRIPTION"),
+    "supportedGames": split_comma_sep_val(os.getenv("SUPPORTED_GAMES")),
     "authors": split_comma_sep_val(os.getenv("AUTHORS")),
     "tags": split_comma_sep_val(os.getenv("TAGS")),
-    "publishedDate": datetime.now().isoformat()
+    "publishedDate": datetime.now().isoformat(),
 }
 if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
