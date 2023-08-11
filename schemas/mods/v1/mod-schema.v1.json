@@ -40,15 +40,16 @@
         "tags": {
           "items": {
             "enum": [
-              "challenge",
-              "rng",
-              "gameplay",
-              "speedrunning",
-              "textures",
               "beta",
+              "challenge",
+              "custom-enemy",
+              "custom-level",
+              "gameplay-mod",
               "multiplayer",
               "practice",
-              "custom-enemy"
+              "rng",
+              "speedrunning",
+              "texture-mod",
             ],
             "type": "string"
           },
