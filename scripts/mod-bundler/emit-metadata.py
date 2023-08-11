@@ -21,5 +21,5 @@ metadata = {
 if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
 
-with open("%s/metadata.json".format(os.getenv("OUT_DIR")), "w", encoding="utf-8") as f:
+with open("{}/metadata.json".format(os.getenv("OUT_DIR")), "w", encoding="utf-8") as f:
     f.write(json.dumps(metadata, indent=2, ensure_ascii=False))

@@ -65,13 +65,16 @@ if args["toolingBinaryDir"] != "":
         os.path.join(dir, "extractor"),
         os.path.join(args["outputDir"], "macos", "extractor"),
     )
+    os.chmod(os.path.join(args["outputDir"], "macos", "extractor"), 0o775)
     shutil.copyfile(
         os.path.join(dir, "goalc"),
         os.path.join(args["outputDir"], "macos", "goalc"),
     )
+    os.chmod(os.path.join(args["outputDir"], "macos", "goalc"), 0o775)
     shutil.copyfile(
         os.path.join(dir, "gk"), os.path.join(args["outputDir"], "macos", "gk")
     )
+    os.chmod(os.path.join(args["outputDir"], "macos", "gk"), 0o775)
 
 # Copy-in Mod Assets
 textureReplacementDir = args["textureReplacementDir"]
