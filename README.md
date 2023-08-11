@@ -8,5 +8,53 @@ Note that overtime this action may change as the underlying expected structure o
 
 ## Usage
 
-TODO
+### Mod Bundling
+
+The most basic usage involves using the binaries provided by `open-goal/jak-project` and adding a Github Actions workflow like so:
+
+```yaml
+name: 🏭 Cut Mod Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Semver Bump Type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  cut_release:
+    name: "Cut Release"
+    uses: open-goal/mod-bundling-tools/.github/workflows/mod-bundler.yml@v1
+    with:
+      semverBump: ${{ inputs.bump }}
+      metadataName: "Test Mod Bundle"
+      metadataDescription: "This is a test mod bundle. 2"
+      metadataSupportedGames: "jak1"
+      metadataAuthors: "barg,vaser"
+      metadataTags: "rng,gameplay-mod"
+      metadataWebsiteUrl: "https://www.example.com/this/is/optional"
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+```
+> You could add this to `.github/workflows/cut-release.yml` For example
+
+You should then have a new workflow call `Cut Mod Release` on your repository's `Actions` tab:
+
+![](./docs/workflow.png)
+
+And after clicking into it, you can trigger a release:
+
+![](./docs/trigger.png)
+
+TODO - documentation on how to use custom binaries
 
