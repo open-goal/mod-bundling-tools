@@ -184,7 +184,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: "Checkout Workflow Scripts"
-        if: ${{ !inputs.skipWindows }}
+        if: ${{ !inputs.skipLinux }}
         uses: actions/checkout@v3
         with:
           repository: "open-goal/mod-bundling-tools"
@@ -271,6 +271,18 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -Rl ${{ inputs.outputDir }}
 
+      - name: Move Linux Assets
+        if: ${{ !inputs.skipLinux }}
+        run: mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
+        
+      - name: Move Windows Assets
+        if: ${{ !inputs.skipWindows }}
+        run: mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
+        
+      - name: Move MacOS Assets
+        if: ${{ !inputs.skipMacOS }}
+        run: mv ${{ inputs.outputDir }}/artifacts/macos-intel/* ${{ inputs.outputDir }}/dist
+
       - name: Prepare Release Assets
         env:
           SCHEMA_VERSION: "0.1.0"
@@ -282,11 +294,7 @@ jobs:
           TAGS: ${{ inputs.metadataTags }}
           WEBSITE_URL: ${{ inputs.metadataWebsiteUrl }}
           OUT_DIR: "${{ inputs.outputDir }}/dist"
-        run: |
-          mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
-          mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
-          mv ${{ inputs.outputDir }}/artifacts/macos-intel/* ${{ inputs.outputDir }}/dist
-          python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
+        run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/emit-metadata.py
 
       - name: Validating Metadata
         run: |
