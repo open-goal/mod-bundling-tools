@@ -62,6 +62,11 @@ on:
         required: false
         default: "./goal_src"
         type: "string"
+      decompilerConfigDir:
+        description: "The directory containing the decompiler (config) code, defaults to `./decompiler/config`"
+        required: false
+        default: "./decompiler/config"
+        type: "string"
       skipWindows:
         description: "Whether to skip Windows builds, defaults to `false`"
         required: false
@@ -164,6 +169,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-windows.py
 
       - name: Upload Bundle
@@ -201,6 +207,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-linux.py
 
       - name: Upload Bundle
@@ -238,6 +245,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-macos.py
 
       - name: Upload Bundle
