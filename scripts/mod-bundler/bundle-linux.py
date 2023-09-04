@@ -13,6 +13,7 @@ args = {
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
+    "decompilerConfigDir": os.getenv("decompilerConfigDir"),
 }
 
 print(args)
@@ -106,6 +107,16 @@ shutil.copytree(
     os.path.join(args["outputDir"], "linux", "data", "goal_src"),
     dirs_exist_ok=True,
 )
+
+decompilerConfigDir = args["decompilerConfigDir"]
+if os.path.exists(decompilerConfigDir):
+    shutil.copytree(
+        decompilerConfigDir,
+        os.path.join(args["outputDir"], "linux", "data", "decompiler", "config"),
+        dirs_exist_ok=True,
+    )
+else:
+    print("Decompiler config directory not found at {}, skipping.".format(decompilerConfigDir))
 
 # Rezip it up and prepare it for upload
 shutil.make_archive(
