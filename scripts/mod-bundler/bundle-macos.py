@@ -10,6 +10,7 @@ args = {
     "versionName": os.getenv("versionName"),
     "toolingVersion": os.getenv("toolingVersion"),
     "toolingBinaryDir": os.getenv("toolingBinaryDir"),
+    "copyEntireBinaryDir": os.getenv("copyEntireBinaryDir"),
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
@@ -61,20 +62,32 @@ if args["toolingBinaryDir"] != "":
     ):
         print("Tooling binaries not found, expecting extractor, goalc, and gk")
         exit(1)
+
     # Binaries are all there, let's replace 'em
-    shutil.copyfile(
-        os.path.join(dir, "extractor"),
-        os.path.join(args["outputDir"], "macos-intel", "extractor"),
-    )
+
+    if args["copyEntireBinaryDir"] != "" and (args["copyEntireBinaryDir"] = "true" or args["copyEntireBinaryDir"]):
+      # user has some DLLs or something, copy entire binary dir
+      shutil.copytree(
+        dir,
+        os.path.join(args["outputDir"], "macos-intel")
+      )
+    else:
+      # copy the 3 key binaries
+      shutil.copyfile(
+          os.path.join(dir, "extractor"),
+          os.path.join(args["outputDir"], "macos-intel", "extractor"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "goalc"),
+          os.path.join(args["outputDir"], "macos-intel", "goalc"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "gk"), os.path.join(args["outputDir"], "macos-intel", "gk")
+      )
+    
+    # permissions
     os.chmod(os.path.join(args["outputDir"], "macos-intel", "extractor"), 0o775)
-    shutil.copyfile(
-        os.path.join(dir, "goalc"),
-        os.path.join(args["outputDir"], "macos-intel", "goalc"),
-    )
     os.chmod(os.path.join(args["outputDir"], "macos-intel", "goalc"), 0o775)
-    shutil.copyfile(
-        os.path.join(dir, "gk"), os.path.join(args["outputDir"], "macos-intel", "gk")
-    )
     os.chmod(os.path.join(args["outputDir"], "macos-intel", "gk"), 0o775)
 
 # Copy-in Mod Assets

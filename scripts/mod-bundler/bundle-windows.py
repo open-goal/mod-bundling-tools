@@ -9,6 +9,7 @@ args = {
     "versionName": os.getenv("versionName"),
     "toolingVersion": os.getenv("toolingVersion"),
     "toolingBinaryDir": os.getenv("toolingBinaryDir"),
+    "copyEntireBinaryDir": os.getenv("copyEntireBinaryDir"),
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
@@ -62,19 +63,29 @@ if args["toolingBinaryDir"] != "":
             "Tooling binaries not found, expecting extractor.exe, goalc.exe, and gk.exe"
         )
         exit(1)
+
     # Binaries are all there, let's replace 'em
-    shutil.copyfile(
-        os.path.join(dir, "extractor.exe"),
-        os.path.join(args["outputDir"], "windows", "extractor.exe"),
-    )
-    shutil.copyfile(
-        os.path.join(dir, "goalc.exe"),
-        os.path.join(args["outputDir"], "windows", "goalc.exe"),
-    )
-    shutil.copyfile(
-        os.path.join(dir, "gk.exe"),
-        os.path.join(args["outputDir"], "windows", "gk.exe"),
-    )
+
+    if args["copyEntireBinaryDir"] != "" and (args["copyEntireBinaryDir"] = "true" or args["copyEntireBinaryDir"]):
+      # user has some DLLs or something, copy entire binary dir
+      shutil.copytree(
+        dir,
+        os.path.join(args["outputDir"], "windows")
+      )
+    else:
+      # copy the 3 key binaries
+      shutil.copyfile(
+          os.path.join(dir, "extractor.exe"),
+          os.path.join(args["outputDir"], "windows", "extractor.exe"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "goalc.exe"),
+          os.path.join(args["outputDir"], "windows", "goalc.exe"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "gk.exe"),
+          os.path.join(args["outputDir"], "windows", "gk.exe")
+      )
 
 # Copy-in Mod Assets
 textureReplacementDir = args["textureReplacementDir"]
