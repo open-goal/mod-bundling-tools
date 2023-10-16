@@ -10,6 +10,7 @@ args = {
     "versionName": os.getenv("versionName"),
     "toolingVersion": os.getenv("toolingVersion"),
     "toolingBinaryDir": os.getenv("toolingBinaryDir"),
+    "copyEntireBinaryDir": os.getenv("copyEntireBinaryDir"),
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
@@ -61,20 +62,32 @@ if args["toolingBinaryDir"] != "":
     ):
         print("Tooling binaries not found, expecting extractor, goalc, and gk")
         exit(1)
+
     # Binaries are all there, let's replace 'em
-    shutil.copyfile(
-        os.path.join(dir, "extractor"),
-        os.path.join(args["outputDir"], "linux", "extractor"),
-    )
+
+    if args["copyEntireBinaryDir"] != "" and (args["copyEntireBinaryDir"] = "true" or args["copyEntireBinaryDir"]):
+      # user has some DLLs or something, copy entire binary dir
+      shutil.copytree(
+        dir,
+        os.path.join(args["outputDir"], "linux")
+      )
+    else:
+      # copy the 3 key binaries
+      shutil.copyfile(
+          os.path.join(dir, "extractor"),
+          os.path.join(args["outputDir"], "linux", "extractor"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "goalc"),
+          os.path.join(args["outputDir"], "linux", "goalc"),
+      )
+      shutil.copyfile(
+          os.path.join(dir, "gk"), os.path.join(args["outputDir"], "linux", "gk")
+      )
+    
+    # permissions
     os.chmod(os.path.join(args["outputDir"], "linux", "extractor"), 0o775)
-    shutil.copyfile(
-        os.path.join(dir, "goalc"),
-        os.path.join(args["outputDir"], "linux", "goalc"),
-    )
     os.chmod(os.path.join(args["outputDir"], "linux", "goalc"), 0o775)
-    shutil.copyfile(
-        os.path.join(dir, "gk"), os.path.join(args["outputDir"], "linux", "gk")
-    )
     os.chmod(os.path.join(args["outputDir"], "linux", "gk"), 0o775)
 
 # Copy-in Mod Assets

@@ -47,6 +47,11 @@ on:
         required: false
         default: ""
         type: "string"
+      copyEntireBinaryDir:
+        description: "If toolingBinaryDir is provided and copyEntireBinaryDir is `true`, will copy all files from toolingBinaryDir instead of using the official `jak-project` release binaries."
+        required: false
+        default: false
+        type: "boolean"
       textureReplacementDir:
         description: "The directory containing texture replacements, defaults to `./texture_replacements`"
         required: false
@@ -166,6 +171,7 @@ jobs:
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
@@ -204,6 +210,7 @@ jobs:
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
@@ -242,6 +249,7 @@ jobs:
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
+          copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
