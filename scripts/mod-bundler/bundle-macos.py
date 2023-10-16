@@ -65,7 +65,7 @@ if args["toolingBinaryDir"] != "":
 
     # Binaries are all there, let's replace 'em
 
-    if args["copyEntireBinaryDir"] != "" and (args["copyEntireBinaryDir"] = "true" or args["copyEntireBinaryDir"]):
+    if args["copyEntireBinaryDir"] != "" and (args["copyEntireBinaryDir"] == "true" or args["copyEntireBinaryDir"]):
       # user has some DLLs or something, copy entire binary dir
       shutil.copytree(
         dir,
