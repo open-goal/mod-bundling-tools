@@ -50,7 +50,6 @@ with zipfile.ZipFile(
     zip_ref.extractall(os.path.join(args["outputDir"], "windows"))
 os.remove(os.path.join(args["outputDir"], "windows", "release.zip"))
 
-
 if args["toolingBinaryDir"] != "":
     # User is specifying the binaries themselves, let's make sure they exist
     dir = args["toolingBinaryDir"]
@@ -70,7 +69,8 @@ if args["toolingBinaryDir"] != "":
       # user has some DLLs or something, copy entire binary dir
       shutil.copytree(
         dir,
-        os.path.join(args["outputDir"], "windows")
+        os.path.join(args["outputDir"], "windows"),
+        dirs_exist_ok=True
       )
     else:
       # copy the 3 key binaries

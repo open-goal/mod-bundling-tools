@@ -69,7 +69,8 @@ if args["toolingBinaryDir"] != "":
       # user has some DLLs or something, copy entire binary dir
       shutil.copytree(
         dir,
-        os.path.join(args["outputDir"], "macos-intel")
+        os.path.join(args["outputDir"], "macos-intel"),
+        dirs_exist_ok=True
       )
     else:
       # copy the 3 key binaries
