@@ -14,6 +14,7 @@ args = {
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
+    "gameAssetsDir": os.getenv("gameAssetsDir"),
     "decompilerConfigDir": os.getenv("decompilerConfigDir"),
 }
 
@@ -131,6 +132,21 @@ if os.path.exists(decompilerConfigDir):
     )
 else:
     print("Decompiler config directory not found at {}, skipping.".format(decompilerConfigDir))
+
+if args["gameAssetsDir"] != "":
+  gameAssetsDir = args["gameAssetsDir"]
+  if not os.path.exists(gameAssetsDir):
+      print(
+          "Game assets directory not found at {}!".format(
+              gameAssetsDir
+          )
+      )
+      exit(1)
+  shutil.copytree(
+      gameAssetsDir,
+      os.path.join(args["outputDir"], "macos-intel", "data", "game", "assets"),
+      dirs_exist_ok=True,
+  )
 
 # Rezip it up and prepare it for upload
 shutil.make_archive(

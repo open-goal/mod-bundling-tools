@@ -13,6 +13,7 @@ args = {
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
+    "gameAssetsDir": os.getenv("gameAssetsDir"),
     "decompilerConfigDir": os.getenv("decompilerConfigDir"),
 }
 
@@ -117,6 +118,21 @@ shutil.copytree(
     os.path.join(args["outputDir"], "windows", "data", "goal_src"),
     dirs_exist_ok=True,
 )
+
+if args["gameAssetsDir"] != "":
+  gameAssetsDir = args["gameAssetsDir"]
+  if not os.path.exists(gameAssetsDir):
+      print(
+          "Game assets directory not found at {}!".format(
+              gameAssetsDir
+          )
+      )
+      exit(1)
+  shutil.copytree(
+      gameAssetsDir,
+      os.path.join(args["outputDir"], "windows", "data", "game", "assets"),
+      dirs_exist_ok=True,
+  )
 
 decompilerConfigDir = args["decompilerConfigDir"]
 if os.path.exists(decompilerConfigDir):
