@@ -72,6 +72,10 @@ on:
         required: false
         default: "./decompiler/config"
         type: "string"
+      gameAssetsDir:
+        description: "If provided, will copy additional game assets (e.g. custom text) from this directory (you probably want `./game/assets`)"
+        required: false
+        type: "string"
       skipWindows:
         description: "Whether to skip Windows builds, defaults to `false`"
         required: false
@@ -175,6 +179,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-windows.py
 
@@ -214,6 +219,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-linux.py
 
@@ -253,6 +259,7 @@ jobs:
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
+          gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
         run: python ./__actions/mod-bundling-tools/scripts/mod-bundler/bundle-macos.py
 
