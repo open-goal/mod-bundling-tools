@@ -147,22 +147,27 @@ else:
 
 # Replace placeholder text with mod version and timestamp
 try:
-  with open(os.path.join(args["outputDir"], "windows", "data", "goal_src", "jak1", "engine", "mods", "mod-settings.gc"), 'r', 'w') as file:
-    file_data = file.read()
+  path = os.path.join(args["outputDir"], "windows", "data", "goal_src", "jak1", "engine", "mods", "mod-settings.gc")
+  file = open(path, "r")
+  file_data = file.read()
+  file.close()
 
-    # Check if the placeholder string is present in the file
-    if "%MODVERSIONPLACEHOLDER%" in file_data:
-      # Replace the placeholder string with the version and date string
-      version_str = args["versionName"] + " " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-      file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
+  # Check if the placeholder string is present in the file
+  if "%MODVERSIONPLACEHOLDER%" in file_data:
+    # Replace the placeholder string with the version and date string
+    version_str = "v6.9.0 " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
 
-      # Write the updated content back to the mod-settings
-      file.write(file_data)
-      print(f"String %MODVERSIONPLACEHOLDER% replaced with '{version_str}' in the file.")
-    else:
-      print(f"Couldn't find %MODVERSIONPLACEHOLDER% in the file.")
+    # Write the updated content back to the mod-settings
+    file = open(path, "w")
+    file.write(file_data)
+    file.close()
+    print(f"String %MODVERSIONPLACEHOLDER% replaced with '{version_str}' in the file.")
+  else:
+    print(f"Couldn't find %MODVERSIONPLACEHOLDER% in the file.")
 except Exception as e:
-  print(f"Something went wrong trying to replace placeholder text with mod version info: '{e.message}'")
+  print(f"Something went wrong trying to replace placeholder text with mod version info:")
+  print(e)
 
 # Rezip it up and prepare it for upload
 shutil.make_archive(
