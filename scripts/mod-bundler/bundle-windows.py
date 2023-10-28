@@ -155,7 +155,7 @@ try:
   # Check if the placeholder string is present in the file
   if "%MODVERSIONPLACEHOLDER%" in file_data:
     # Replace the placeholder string with the version and date string
-    version_str = "v6.9.0 " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    version_str = args["versionName"] + " " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
 
     # Write the updated content back to the mod-settings
