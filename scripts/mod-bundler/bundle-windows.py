@@ -3,6 +3,7 @@ import shutil
 import requests
 import urllib.request
 import zipfile
+import datetime
 
 args = {
     "outputDir": os.getenv("outputDir"),
@@ -143,6 +144,25 @@ if os.path.exists(decompilerConfigDir):
     )
 else:
     print("Decompiler config directory not found at {}, skipping.".format(decompilerConfigDir))
+
+# Replace placeholder text with mod version and timestamp
+try:
+  with open(os.path.join(args["outputDir"], "windows", "data", "goal_src", "jak1", "engine", "mods", "mod-settings.gc"), 'r', 'w') as file:
+    file_data = file.read()
+
+    # Check if the placeholder string is present in the file
+    if "%MODVERSIONPLACEHOLDER%" in file_data:
+      # Replace the placeholder string with the version and date string
+      version_str = args["versionName"] + " " + datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+      file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
+
+      # Write the updated content back to the mod-settings
+      file.write(file_data)
+      print(f"String %MODVERSIONPLACEHOLDER% replaced with '{version_str}' in the file.")
+    else:
+      print(f"Couldn't find %MODVERSIONPLACEHOLDER% in the file.")
+except Exception as e:
+  print(f"Something went wrong trying to replace placeholder text with mod version info: '{e.message}'")
 
 # Rezip it up and prepare it for upload
 shutil.make_archive(
