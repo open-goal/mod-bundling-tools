@@ -37,6 +37,11 @@ on:
         required: false
         default: "patch"
         type: "string"
+      toolingRepo:
+        description: "The repository from which the tooling is taken for the bundle. Defaults to open-goal/jak-project."
+        required: false
+        default: "open-goal/jak-project"
+        type: "string"
       toolingVersion:
         description: "The version of `jak-project` to bundle. Defaults to latest version."
         required: false
@@ -173,6 +178,7 @@ jobs:
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
@@ -213,6 +219,7 @@ jobs:
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
@@ -253,6 +260,7 @@ jobs:
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create-release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
           toolingVersion: ${{ inputs.toolingVersion }}
           toolingBinaryDir: ${{ inputs.toolingBinaryDir }}
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}

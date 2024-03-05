@@ -8,6 +8,7 @@ import tarfile
 args = {
     "outputDir": os.getenv("outputDir"),
     "versionName": os.getenv("versionName"),
+    "toolingRepo": os.getenv("toolingRepo"),
     "toolingVersion": os.getenv("toolingVersion"),
     "toolingBinaryDir": os.getenv("toolingBinaryDir"),
     "copyEntireBinaryDir": os.getenv("copyEntireBinaryDir"),
@@ -32,15 +33,14 @@ if os.path.exists(os.path.join(args["outputDir"], "macos-intel")):
 os.makedirs(os.path.join(args["outputDir"], "macos-intel"), exist_ok=True)
 
 # Download the Release
+toolingRepo = args["toolingRepo"]
 toolingVersion = args["toolingVersion"]
 if toolingVersion == "latest":
-    # Get the latest open-goal/jak-project release
+    # Get the latest release
     toolingVersion = requests.get(
-        "https://api.github.com/repos/open-goal/jak-project/releases/latest"
+        f"https://api.github.com/repos/{toolingRepo}/releases/latest"
     ).json()["tag_name"]
-releaseAssetUrl = "https://github.com/open-goal/jak-project/releases/download/{}/opengoal-macos-intel-{}.tar.gz".format(
-    toolingVersion, toolingVersion
-)
+releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/opengoal-macos-intel-{toolingVersion}.tar.gz"
 urllib.request.urlretrieve(
     releaseAssetUrl, os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
 )
