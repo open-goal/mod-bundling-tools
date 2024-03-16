@@ -32,30 +32,33 @@ if os.path.exists(os.path.join(args["outputDir"], "macos-intel")):
 
 os.makedirs(os.path.join(args["outputDir"], "macos-intel"), exist_ok=True)
 
-# Download the Release
-toolingRepo = args["toolingRepo"]
-toolingVersion = args["toolingVersion"]
-if toolingVersion == "latest":
-    # Get the latest release
-    toolingVersion = requests.get(
-        f"https://api.github.com/repos/{toolingRepo}/releases/latest"
-    ).json()["tag_name"]
-releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/opengoal-macos-intel-{toolingVersion}.tar.gz"
-urllib.request.urlretrieve(
-    releaseAssetUrl, os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
-)
+# Locate tooling binaries
+if args["toolingBinaryDir"] is None or args["toolingBinaryDir"] == "":
+   # User doesn't have tooling binaries committed to repo, so download release
+    toolingRepo = args["toolingRepo"]
+    toolingVersion = args["toolingVersion"]
+    if toolingVersion == "latest":
+        # Get the latest release
+        toolingVersion = requests.get(
+            f"https://api.github.com/repos/{toolingRepo}/releases/latest"
+        ).json()["tag_name"]
+    releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/opengoal-macos-intel-{toolingVersion}.tar.gz"
+    urllib.request.urlretrieve(
+        releaseAssetUrl, os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
+    )
 
-# Extract it
-with tarfile.open(
-    os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
-) as tar_ball:
-    tar_ball.extractall(os.path.join(args["outputDir"], "macos-intel"))
-os.remove(os.path.join(args["outputDir"], "macos-intel", "release.tar.gz"))
+    # Extract it
+    with tarfile.open(
+        os.path.join(args["outputDir"], "macos-intel", "release.tar.gz")
+    ) as tar_ball:
+        tar_ball.extractall(os.path.join(args["outputDir"], "macos-intel"))
+    os.remove(os.path.join(args["outputDir"], "macos-intel", "release.tar.gz"))
 
-
-if args["toolingBinaryDir"] != "":
-    # User is specifying the binaries themselves, let's make sure they exist
+else: # args["toolingBinaryDir"] != "":
+    # User has tooling binaries commited to repo
     dir = args["toolingBinaryDir"]
+
+    # Verify all binaries are present
     if (
         not os.path.exists(os.path.join(dir, "extractor"))
         or not os.path.exists(os.path.join(dir, "goalc"))
