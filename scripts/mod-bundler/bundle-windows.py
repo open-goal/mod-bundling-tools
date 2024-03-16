@@ -32,29 +32,33 @@ if os.path.exists(os.path.join(args["outputDir"], "windows")):
 
 os.makedirs(os.path.join(args["outputDir"], "windows"), exist_ok=True)
 
-# Download the Release
-toolingRepo = args["toolingRepo"]
-toolingVersion = args["toolingVersion"]
-if toolingVersion == "latest":
-    # Get the latest release
-    toolingVersion = requests.get(
-        f"https://api.github.com/repos/{toolingRepo}/releases/latest"
-    ).json()["tag_name"]
-releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/opengoal-windows-{toolingVersion}.zip"
-urllib.request.urlretrieve(
-    releaseAssetUrl, os.path.join(args["outputDir"], "windows", "release.zip")
-)
+# Locate tooling binaries
+if args["toolingBinaryDir"] is None or args["toolingBinaryDir"] == "":
+   # User doesn't have tooling binaries committed to repo, so download release
+    toolingRepo = args["toolingRepo"]
+    toolingVersion = args["toolingVersion"]
+    if toolingVersion == "latest":
+        # Get the latest release
+        toolingVersion = requests.get(
+            f"https://api.github.com/repos/{toolingRepo}/releases/latest"
+        ).json()["tag_name"]
+    releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/opengoal-windows-{toolingVersion}.zip"
+    urllib.request.urlretrieve(
+        releaseAssetUrl, os.path.join(args["outputDir"], "windows", "release.zip")
+    )
 
-# Extract it
-with zipfile.ZipFile(
-    os.path.join(args["outputDir"], "windows", "release.zip"), "r"
-) as zip_ref:
-    zip_ref.extractall(os.path.join(args["outputDir"], "windows"))
-os.remove(os.path.join(args["outputDir"], "windows", "release.zip"))
+    # Extract it
+    with zipfile.ZipFile(
+        os.path.join(args["outputDir"], "windows", "release.zip"), "r"
+    ) as zip_ref:
+        zip_ref.extractall(os.path.join(args["outputDir"], "windows"))
+    os.remove(os.path.join(args["outputDir"], "windows", "release.zip"))
 
-if args["toolingBinaryDir"] != "":
-    # User is specifying the binaries themselves, let's make sure they exist
+else: # args["toolingBinaryDir"] != "":
+    # User has tooling binaries commited to repo
     dir = args["toolingBinaryDir"]
+
+    # Verify all binaries are present
     if (
         not os.path.exists(os.path.join(dir, "extractor.exe"))
         or not os.path.exists(os.path.join(dir, "goalc.exe"))
