@@ -67,7 +67,7 @@ on:
         required: false
         default: "./custom_levels"
         type: "string"
-      customAssetssDir:
+      customAssetsDir:
         description: "The directory containing custom assets, defaults to `./custom_assets`"
         required: false
         default: "./custom_assets"
