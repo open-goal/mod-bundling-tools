@@ -67,6 +67,11 @@ on:
         required: false
         default: "./custom_levels"
         type: "string"
+      customAssetssDir:
+        description: "The directory containing custom assets, defaults to `./custom_assets`"
+        required: false
+        default: "./custom_assets"
+        type: "string"
       goalSourceDir:
         description: "The directory containing the OpenGOAL source code, defaults to `./goal_src`"
         required: false
@@ -184,6 +189,7 @@ jobs:
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
+          customAssetsDir: ${{ inputs.customAssetsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
           gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
@@ -225,6 +231,7 @@ jobs:
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
+          customAssetsDir: ${{ inputs.customAssetsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
           gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}
@@ -266,6 +273,7 @@ jobs:
           copyEntireBinaryDir: ${{ inputs.copyEntireBinaryDir }}
           textureReplacementDir: ${{ inputs.textureReplacementDir }}
           customLevelsDir: ${{ inputs.customLevelsDir }}
+          customAssetsDir: ${{ inputs.customAssetsDir }}
           goalSourceDir: ${{ inputs.goalSourceDir }}
           gameAssetsDir: ${{ inputs.gameAssetsDir }}
           decompilerConfigDir: ${{ inputs.decompilerConfigDir }}

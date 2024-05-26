@@ -14,6 +14,7 @@ args = {
     "copyEntireBinaryDir": os.getenv("copyEntireBinaryDir"),
     "textureReplacementDir": os.getenv("textureReplacementDir"),
     "customLevelsDir": os.getenv("customLevelsDir"),
+    "customAssetsDir": os.getenv("customAssetsDir"),
     "goalSourceDir": os.getenv("goalSourceDir"),
     "gameAssetsDir": os.getenv("gameAssetsDir"),
     "decompilerConfigDir": os.getenv("decompilerConfigDir"),
@@ -101,11 +102,21 @@ if os.path.exists(textureReplacementDir):
         dirs_exist_ok=True,
     )
 
+# Old structure
 customLevelsDir = args["customLevelsDir"]
 if os.path.exists(customLevelsDir):
     shutil.copytree(
         customLevelsDir,
         os.path.join(args["outputDir"], "macos-intel", "data", "custom_levels"),
+        dirs_exist_ok=True,
+    )
+
+# New structure
+customAssetsDir = args["customAssetsDir"]
+if os.path.exists(customAssetsDir):
+    shutil.copytree(
+        customAssetsDir,
+        os.path.join(args["outputDir"], "macos-intel", "data", "custom_assets"),
         dirs_exist_ok=True,
     )
 
