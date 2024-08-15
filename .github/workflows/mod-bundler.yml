@@ -37,6 +37,11 @@ on:
         required: false
         default: "patch"
         type: "string"
+      releaseBranches:
+        description: "Comma separated list of branches (JavaScript regular expression accepted) that will generate the release tags. You probably want your default branch in this list."
+        required: false
+        default: "master,main"
+        type: "string"
       toolingRepo:
         description: "The repository from which the tooling is taken for the bundle. Defaults to open-goal/jak-project."
         required: false
@@ -154,6 +159,7 @@ jobs:
           github_token: ${{ secrets.token }}
           tag_prefix: v
           default_bump: ${{ inputs.semverBump }}
+          release_branches: ${{ inputs.releaseBranches }}
           append_to_pre_release_tag: ""
 
       - name: Create Release
