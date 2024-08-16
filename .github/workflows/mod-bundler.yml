@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Workflow Scripts"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
@@ -174,11 +174,11 @@ jobs:
     steps:
       - name: "Checkout Repository"
         if: ${{ !inputs.skipWindows }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
         if: ${{ !inputs.skipWindows }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
@@ -203,7 +203,7 @@ jobs:
 
       - name: Upload Bundle
         if: ${{ !inputs.skipWindows }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows
           if-no-files-found: error
@@ -216,11 +216,11 @@ jobs:
     steps:
       - name: "Checkout Repository"
         if: ${{ !inputs.skipLinux }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
         if: ${{ !inputs.skipLinux }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
@@ -245,7 +245,7 @@ jobs:
 
       - name: Upload Bundle
         if: ${{ !inputs.skipLinux }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux
           if-no-files-found: error
@@ -258,11 +258,11 @@ jobs:
     steps:
       - name: "Checkout Repository"
         if: ${{ !inputs.skipMacOS }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
         if: ${{ !inputs.skipMacOS }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
@@ -287,7 +287,7 @@ jobs:
 
       - name: Upload Bundle
         if: ${{ !inputs.skipMacOS }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-intel
           if-no-files-found: error
@@ -299,7 +299,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Workflow Scripts"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
           ref: ${{ github.event.inputs.ref }}
@@ -309,7 +309,7 @@ jobs:
         run: mkdir -p ${{ inputs.outputDir }}/dist
 
       - name: Download all Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ${{ inputs.outputDir }}/artifacts
 
