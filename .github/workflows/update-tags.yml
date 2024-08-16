@@ -27,7 +27,7 @@ jobs:
 
       - name: Update latest minimal tag
         run: |
-          git push --delete origin v1
-          git tag --delete v1
+          git push --delete origin v1 || true
+          git tag --delete v1 || true
           git tag v1
           git push origin v1
