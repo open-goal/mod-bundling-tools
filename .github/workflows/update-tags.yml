@@ -1,0 +1,24 @@
+name: Update Tags
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump Version and Push Tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          tag_prefix: v
+          default_bump: patch
+
+      - name: Update latest minimal tag
+        run: |
+          git push --delete origin v1
+          git tag --delete v1
+          git tag v1
+          git push origin v1
