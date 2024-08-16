@@ -9,6 +9,10 @@ def split_comma_sep_val(str):
         return [str]
     return str.split(",")
 
+# Fail if the user hasn't changed anything
+if os.getenv("NAME") == "NAME" or os.getenv("DESCRIPTION") == "DESCRIPTION" or os.getenv("AUTHORS") == "authorName1,authorName2":
+    print("Mod metadata is just copy-pasted from the example and not actually setup, do that!")
+
 metadata = {
     "schemaVersion": os.getenv("SCHEMA_VERSION"),
     "version": os.getenv("VERSION").removeprefix("v"),
@@ -21,6 +25,10 @@ metadata = {
 }
 if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
+
+# Fail if the user hasn't changed anything
+if metadata["websiteUrl"] == "https://www.example.com/this/is/optional":
+    print("Mod metadata is just copy-pasted from the example and not actually setup, do that!")
 
 with open("{}/metadata.json".format(os.getenv("OUT_DIR")), "w", encoding="utf-8") as f:
     print("Writing the following metadata: {}".format(json.dumps(metadata, indent=2, ensure_ascii=False)))

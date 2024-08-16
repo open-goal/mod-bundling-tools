@@ -37,10 +37,10 @@ jobs:
     uses: open-goal/mod-bundling-tools/.github/workflows/mod-bundler.yml@v1
     with:
       semverBump: ${{ inputs.bump }}
-      metadataName: "Test Mod Bundle"
-      metadataDescription: "This is a test mod bundle. 2"
-      metadataSupportedGames: "jak1"
-      metadataAuthors: "barg,vaser"
+      metadataName: "NAME"
+      metadataDescription: "DESCRIPTION"
+      metadataSupportedGames: "jak1,jak2"
+      metadataAuthors: "authorName1,authorName2"
       metadataTags: "rng,gameplay-mod"
       metadataWebsiteUrl: "https://www.example.com/this/is/optional"
     secrets:

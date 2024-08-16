@@ -319,11 +319,11 @@ jobs:
       - name: Move Linux Assets
         if: ${{ !inputs.skipLinux }}
         run: mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
-        
+
       - name: Move Windows Assets
         if: ${{ !inputs.skipWindows }}
         run: mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
-        
+
       - name: Move MacOS Assets
         if: ${{ !inputs.skipMacOS }}
         run: mv ${{ inputs.outputDir }}/artifacts/macos-intel/* ${{ inputs.outputDir }}/dist
