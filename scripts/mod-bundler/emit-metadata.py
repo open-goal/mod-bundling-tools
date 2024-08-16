@@ -26,11 +26,11 @@ metadata = {
 }
 if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
-    exit(1)
 
 # Fail if the user hasn't changed anything
 if metadata["websiteUrl"] == "https://www.example.com/this/is/optional":
     print("Mod metadata is just copy-pasted from the example and not actually setup, do that!")
+    exit(1)
 
 with open("{}/metadata.json".format(os.getenv("OUT_DIR")), "w", encoding="utf-8") as f:
     print("Writing the following metadata: {}".format(json.dumps(metadata, indent=2, ensure_ascii=False)))
