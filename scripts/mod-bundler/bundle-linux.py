@@ -24,4 +24,4 @@ override_binaries_and_assets(args, "linux", executable_extensions=False)
 patch_mod_timestamp_and_version_info(args, "linux")
 
 # Rezip it up and prepare it for upload
-finalize_bundle(args, "linux", is_zip=True)
+finalize_bundle(args, "linux", is_zip=False)
