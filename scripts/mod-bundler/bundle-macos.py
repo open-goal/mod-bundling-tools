@@ -24,4 +24,4 @@ override_binaries_and_assets(args, "macos-intel", executable_extensions=False)
 patch_mod_timestamp_and_version_info(args, "macos-intel")
 
 # Rezip it up and prepare it for upload
-finalize_bundle(args, "macos-intel", is_zip=True)
+finalize_bundle(args, "macos-intel", is_zip=False)
