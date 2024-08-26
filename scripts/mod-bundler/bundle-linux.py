@@ -7,7 +7,7 @@ from common import (
     patch_mod_timestamp_and_version_info,
 )
 
-args = get_args()
+args = get_args("linux")
 
 print(args)
 
