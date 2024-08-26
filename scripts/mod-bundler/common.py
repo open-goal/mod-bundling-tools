@@ -64,7 +64,7 @@ def download_release(args, out_folder, is_zip=True):
             data = json.loads(response.read().decode())
             tooling_version = data["tag_name"]
     if is_zip:
-        releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/{toolingReleaseAssetPrefix}-{toolingVersion}.zip"
+        releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{tooling_version}/{args['toolingReleaseAssetPrefix']}-{tooling_version}.zip"
         urllib.request.urlretrieve(
             releaseAssetUrl, os.path.join(args["outputDir"], out_folder, "release.zip")
         )
@@ -75,7 +75,7 @@ def download_release(args, out_folder, is_zip=True):
             zip_ref.extractall(os.path.join(args["outputDir"], out_folder))
         os.remove(os.path.join(args["outputDir"], out_folder, "release.zip"))
     else:
-        releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{toolingVersion}/{toolingReleaseAssetPrefix}-{toolingVersion}.tar.gz"
+        releaseAssetUrl = f"https://github.com/{toolingRepo}/releases/download/{tooling_version}/{args['toolingReleaseAssetPrefix']}-{tooling_version}.tar.gz"
         urllib.request.urlretrieve(
             releaseAssetUrl,
             os.path.join(args["outputDir"], out_folder, "release.tar.gz"),
@@ -217,28 +217,28 @@ def patch_mod_timestamp_and_version_info(args, out_folder):
 def finalize_bundle(args, out_folder, is_zip=True):
     if is_zip:
         shutil.make_archive(
-            f"{out_folder}-{args["versionName"]}",
+            f"{out_folder}-{args['versionName']}",
             "zip",
             os.path.join(args["outputDir"], out_folder),
         )
         os.makedirs(os.path.join(args["outputDir"], "dist"), exist_ok=True)
         shutil.move(
-            f"{out_folder}-{args["versionName"]}.zip",
+            f"{out_folder}-{args['versionName']}.zip",
             os.path.join(
-                args["outputDir"], "dist", f"{out_folder}-{args["versionName"]}.zip"
+                args["outputDir"], "dist", f"{out_folder}-{args['versionName']}.zip"
             ),
         )
     else:
         shutil.make_archive(
-            f"{out_folder}-{args["versionName"]}",
+            f"{out_folder}-{args['versionName']}",
             "gztar",
             os.path.join(args["outputDir"], out_folder),
         )
         os.makedirs(os.path.join(args["outputDir"], "dist"), exist_ok=True)
         shutil.move(
-            f"{out_folder}-{args["versionName"]}.tar.gz",
+            f"{out_folder}-{args['versionName']}.tar.gz",
             os.path.join(
-                args["outputDir"], "dist", f"{out_folder}-{args["versionName"]}.tar.gz"
+                args["outputDir"], "dist", f"{out_folder}-{args['versionName']}.tar.gz"
             ),
         )
     # Cleanup
