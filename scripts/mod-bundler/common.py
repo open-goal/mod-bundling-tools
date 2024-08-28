@@ -183,7 +183,8 @@ def override_binaries_and_assets(args, out_folder, executable_extensions=True):
 
 def patch_mod_timestamp_and_version_info(args, out_folder):
     try:
-        mod_settings_files = glob.glob(f"{args['outputDir']}/{out_folder}/data/goal_src/**/mod-settings.gc", recursive=True)
+        out_dir = args["outputDir"]
+        mod_settings_files = glob.glob(f"{out_dir}/{out_folder}/data/goal_src/**/mod-settings.gc", recursive=True)
         for settings_file_path in mod_settings_files:
             file = open(settings_file_path, "r")
             file_data = file.read()
