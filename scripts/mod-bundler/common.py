@@ -1,5 +1,4 @@
 import datetime
-import glob
 import json
 import os
 import shutil
@@ -183,32 +182,31 @@ def override_binaries_and_assets(args, out_folder, executable_extensions=True):
 
 def patch_mod_timestamp_and_version_info(args, out_folder):
     try:
-        out_dir = args["outputDir"]
-        mod_settings_files = glob.glob(f"{out_dir}/{out_folder}/data/goal_src/**/mod-settings.gc", recursive=True)
-        for settings_file_path in mod_settings_files:
-            file = open(settings_file_path, "r")
-            file_data = file.read()
+        path = os.path.join(args["outputDir"], "windows", "data", "goal_src", "jak1", "engine", "mods", "mod-settings.gc")
+  
+        file = open(path, "r")
+        file_data = file.read()
+        file.close()
+
+        # Check if the placeholder string is present in the file
+        if "%MODVERSIONPLACEHOLDER%" in file_data:
+            # Replace the placeholder string with the version and date string
+            version_str = (
+                args["versionName"]
+                + " "
+                + datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
+            )
+            file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
+
+            # Write the updated content back to the mod-settings
+            file = open(path, "w")
+            file.write(file_data)
             file.close()
-
-            # Check if the placeholder string is present in the file
-            if "%MODVERSIONPLACEHOLDER%" in file_data:
-                # Replace the placeholder string with the version and date string
-                version_str = (
-                    args["versionName"]
-                    + " "
-                    + datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S")
-                )
-                file_data = file_data.replace("%MODVERSIONPLACEHOLDER%", version_str)
-
-                # Write the updated content back to the mod-settings
-                file = open(settings_file_path, "w")
-                file.write(file_data)
-                file.close()
-                print(
-                    f"String %MODVERSIONPLACEHOLDER% replaced with '{version_str}' in the file."
-                )
-            else:
-                print(f"Couldn't find %MODVERSIONPLACEHOLDER% in the file.")
+            print(
+                f"String %MODVERSIONPLACEHOLDER% replaced with '{version_str}' in the file."
+            )
+        else:
+            print(f"Couldn't find %MODVERSIONPLACEHOLDER% in the file.")
     except Exception as e:
         print(
             f"Something went wrong trying to replace placeholder text with mod version info:"
