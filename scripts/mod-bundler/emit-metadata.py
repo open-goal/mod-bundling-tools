@@ -36,7 +36,7 @@ if os.getenv("WEBSITE_URL") != "":
     metadata["websiteUrl"] = os.getenv("WEBSITE_URL")
 
 # Fail if the user hasn't changed anything
-if metadata["websiteUrl"] == "https://www.example.com/this/is/optional":
+if metadata["websiteUrl"] == "https://www.example.com/this/is/optional" or metadata["websiteUrl"] == "https://www.example.com/please/change/me":
     print(
         "Mod metadata is just copy-pasted from the example and not actually setup, do that!"
     )
