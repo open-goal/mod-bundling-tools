@@ -42,7 +42,7 @@ jobs:
       metadataSupportedGames: "jak1,jak2"
       metadataAuthors: "authorName1,authorName2"
       metadataTags: "rng,gameplay-mod"
-      metadataWebsiteUrl: "https://www.example.com/this/is/optional"
+      metadataWebsiteUrl: "https://www.example.com/please/change/me"
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 ```
