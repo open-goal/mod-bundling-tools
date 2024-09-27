@@ -114,20 +114,23 @@ jobs:
 
   # if `buildBinaries`, run the workflow to build and generate artifacts
 
-  build_windows_and_bundle:
-    name: "Windows Build & Package"
+  build_windows_clang:
+    name: "Windows Build"
     needs: create_release
     if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
-    runs-on: windows-2022
-    steps:
-      - name: "Build Windows Binaries"
-        uses: ./.github/workflows/windows-build-clang.yaml
-        with:
-          cmakePreset: "Release-windows-clang-static"
-          cachePrefix: "static"
-          uploadArtifacts: true
-        secrets: inherit
+    uses: ./.github/workflows/windows-build-clang.yaml
+    with:
+      cmakePreset: "Release-windows-clang-static"
+      cachePrefix: "static"
+      uploadArtifacts: true
+    secrets: inherit
 
+  bundle_windows_build:
+    name: "Bundle Windows Build"
+    needs: build_windows_clang
+    if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
@@ -158,19 +161,22 @@ jobs:
           path: ${{ inputs.outputDir }}/dist
 
   build_linux_clang:
-    name: "Linux Build & Package"
+    name: "Linux Build"
     needs: create_release
     if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
+    uses: ./.github/workflows/linux-build-clang.yaml
+    with:
+      cmakePreset: "Release-linux-clang-static"
+      cachePrefix: "static"
+      uploadArtifacts: true
+    secrets: inherit
+  
+  bundle_linux_build:
+    name: "Bundle Linux Build"
+    needs: build_linux_clang
+    if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
     runs-on: ubuntu-latest
-    steps:
-      - name: "Build Linux Binaries"
-        uses: ./.github/workflows/linux-build-clang.yaml
-        with:
-          cmakePreset: "Release-linux-clang-static"
-          cachePrefix: "static"
-          uploadArtifacts: true
-        secrets: inherit
-      
+    steps:      
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
@@ -201,18 +207,21 @@ jobs:
           path: ${{ inputs.outputDir }}/dist
 
   build_macos_intel:
-    name: "MacOS Build & Package"
+    name: "MacOS Build"
     needs: create_release
     if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
+    uses: ./.github/workflows/macos-build.yaml
+    with:
+      cmakePreset: "Release-macos-clang-static"
+      cachePrefix: "static"
+      uploadArtifacts: true
+    secrets: inherit
+
+  bundle_macos_build:
+    name: "Bundle MacOS Build"
+    needs: build_macos_intel
+    if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
     steps:
-      - name: "Build MacOS Binaries"
-        uses: ./.github/workflows/macos-build.yaml
-        with:
-          cmakePreset: "Release-macos-clang-static"
-          cachePrefix: "static"
-          uploadArtifacts: true
-        secrets: inherit
-      
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
@@ -244,8 +253,8 @@ jobs:
 
   # if not `buildBinaries`, run the steps to build release assets
 
-  create_windows_bundle:
-    name: "Windows Bundle"
+  bundle_windows_no_build:
+    name: "Bundle Windows (no build)"
     needs: create_release
     if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
@@ -275,8 +284,8 @@ jobs:
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
 
-  create_linux_bundle:
-    name: "Linux Bundle"
+  bundle_linux_no_build:
+    name: "Bundle Linux (no build)"
     needs: create_release
     if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
@@ -306,8 +315,8 @@ jobs:
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
 
-  create_macos_intel_bundle:
-    name: "macOS Intel Bundle"
+  bundle_macos_no_build:
+    name: "Bundle macOS Intel (no build)"
     needs: create_release
     if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
@@ -337,16 +346,16 @@ jobs:
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
 
-  finalize-release:
+  finalize_release:
     name: "Finalize Release"
     needs: 
       - create_release
-      - build_windows_clang
-      - build_linux_clang
-      - build_macos_intel
-      - create_windows_bundle
-      - create_linux_bundle
-      - create_macos_intel_bundle
+      - bundle_windows_build
+      - bundle_linux_build
+      - bundle_macos_build
+      - bundle_windows_no_build
+      - bundle_linux_no_build
+      - bundle_macos_no_build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Workflow Scripts"
