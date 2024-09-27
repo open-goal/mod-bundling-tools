@@ -218,9 +218,8 @@ jobs:
           mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
-          pushd ci-artifacts/linux
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
-          tar czf ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.tar.gz .
+          tar czf ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.tar.gz ./ci-artifacts/linux
 
       - name: Upload Bundle
         uses: actions/upload-artifact@v4
@@ -276,9 +275,8 @@ jobs:
           mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
-          pushd ci-artifacts/macos-intel
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
-          tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz .
+          tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz ./ci-artifacts/macos-intel
 
       - name: Upload Bundle
         uses: actions/upload-artifact@v4
