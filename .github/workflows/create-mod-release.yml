@@ -359,7 +359,7 @@ jobs:
       - bundle_macos_no_build
     if: |
       always() &&
-      needs.create_release.result == 'success'
+      needs.create_release.result == 'success' &&
       (needs.bundle_windows_build.result == 'skipped' || needs.bundle_windows_build.result == 'success') &&
       (needs.bundle_linux_build.result == 'skipped' || needs.bundle_linux_build.result == 'success') &&
       (needs.bundle_macos_build.result == 'skipped' || needs.bundle_macos_build.result == 'success') &&
