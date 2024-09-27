@@ -158,6 +158,7 @@ jobs:
       - name: Prepare Windows Build Assets
         run: |
           mkdir -p ./ci-artifacts/windows
+          mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
@@ -214,6 +215,7 @@ jobs:
       - name: Prepare Linux Build Assets
         run: |
           mkdir -p ./ci-artifacts/linux
+          mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
           pushd ci-artifacts/linux
@@ -271,9 +273,10 @@ jobs:
       - name: Prepare MacOS Build Assets
         run: |
           mkdir -p ./ci-artifacts/macos-intel
+          mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
-          pushd ci-artifacts/macos
+          pushd ci-artifacts/macos-intel
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz .
 
