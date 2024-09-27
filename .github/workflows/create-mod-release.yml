@@ -127,7 +127,9 @@ jobs:
 
   bundle_windows_build:
     name: "Bundle Windows Build"
-    needs: build_windows_clang
+    needs: 
+      - create_release
+      - build_windows_clang
     if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
@@ -181,7 +183,9 @@ jobs:
   
   bundle_linux_build:
     name: "Bundle Linux Build"
-    needs: build_linux_clang
+    needs:
+      - create_release
+      - build_linux_clang
     if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:      
@@ -236,7 +240,9 @@ jobs:
 
   bundle_macos_build:
     name: "Bundle MacOS Build"
-    needs: build_macos_intel
+    needs: 
+      - create_release
+      - build_macos_intel
     if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
