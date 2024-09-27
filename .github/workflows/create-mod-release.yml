@@ -221,6 +221,7 @@ jobs:
     name: "Bundle MacOS Build"
     needs: build_macos_intel
     if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
