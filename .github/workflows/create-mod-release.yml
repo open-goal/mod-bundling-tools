@@ -135,7 +135,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.create_release.outputs.new_tag }}
+          ref: ${{ needs.create_release.outputs.bundleTagName }}
 
       - name: "Checkout Workflow Scripts"
         uses: actions/checkout@v4
@@ -160,7 +160,7 @@ jobs:
           mkdir -p ./ci-artifacts/windows
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
-          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
 
       - name: Upload Bundle
@@ -191,7 +191,7 @@ jobs:
     steps:      
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.create_release.outputs.new_tag }}
+          ref: ${{ needs.create_release.outputs.bundleTagName }}
 
       - name: "Checkout Workflow Scripts"
         uses: actions/checkout@v4
@@ -217,7 +217,7 @@ jobs:
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
           pushd ci-artifacts/linux
-          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           tar czf ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.tar.gz .
 
       - name: Upload Bundle
@@ -248,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.create_release.outputs.new_tag }}
+          ref: ${{ needs.create_release.outputs.bundleTagName }}
 
       - name: "Checkout Workflow Scripts"
         uses: actions/checkout@v4
@@ -274,7 +274,7 @@ jobs:
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
           pushd ci-artifacts/macos
-          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz .
 
       - name: Upload Bundle
