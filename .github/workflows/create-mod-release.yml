@@ -135,6 +135,13 @@ jobs:
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
       - name: Prepare Artifact Folder
         run: mkdir -p ./ci-artifacts
 
@@ -149,7 +156,7 @@ jobs:
       - name: Prepare Windows Build Assets
         run: |
           mkdir -p ./ci-artifacts/windows
-          ./scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
           7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
 
@@ -181,6 +188,13 @@ jobs:
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
       - name: Prepare Artifact Folder
         run: mkdir -p ./ci-artifacts
 
@@ -195,7 +209,7 @@ jobs:
       - name: Prepare Linux Build Assets
         run: |
           mkdir -p ./ci-artifacts/linux
-          ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
           7z a -tzip ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.zip ./ci-artifacts/linux/*
 
@@ -227,6 +241,13 @@ jobs:
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+        
       - name: Prepare Artifact Folder
         run: mkdir -p ./ci-artifacts
 
@@ -241,7 +262,7 @@ jobs:
       - name: Prepare MacOS Build Assets
         run: |
           mkdir -p ./ci-artifacts/macos-intel
-          ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
           7z a -tzip ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.zip ./ci-artifacts/macos-intel/*
 
