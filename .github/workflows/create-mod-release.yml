@@ -156,6 +156,7 @@ jobs:
       - name: Prepare Windows Build Assets
         run: |
           mkdir -p ./ci-artifacts/windows
+          chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
           7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
@@ -209,9 +210,11 @@ jobs:
       - name: Prepare Linux Build Assets
         run: |
           mkdir -p ./ci-artifacts/linux
+          chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
+          pushd ci-artifacts/linux
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
-          7z a -tzip ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.zip ./ci-artifacts/linux/*
+          tar czf ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.tar.gz .
 
       - name: Upload Bundle
         uses: actions/upload-artifact@v4
@@ -262,9 +265,11 @@ jobs:
       - name: Prepare MacOS Build Assets
         run: |
           mkdir -p ./ci-artifacts/macos-intel
+          chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
           ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
+          pushd ci-artifacts/macos
           TAG_VAL=${{ needs.create_release.outputs.new_tag }}
-          7z a -tzip ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.zip ./ci-artifacts/macos-intel/*
+          tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz .
 
       - name: Upload Bundle
         uses: actions/upload-artifact@v4
