@@ -1,0 +1,410 @@
+name: "Create an OpenGOAL Mod Release"
+on:
+  workflow_call:
+    inputs:
+      metadataSupportedGames:
+        description: "The supported games for the mod, can be comma-separated, supports `jak1|jak2|jak3|jakx`"
+        required: true
+        default: "jak4"
+        type: "string"
+      outputDir:
+        description: "The directory that the releases assets are created and temporarily stored in. Defaults to ./bundler"
+        required: false
+        default: "./bundler"
+        type: "string"
+      semverBump:
+        description: "What semver bump to use - patch|minor|major. Defaults to patch"
+        required: false
+        default: "patch"
+        type: "string"
+      releaseBranches:
+        description: "Comma separated list of branches (JavaScript regular expression accepted) that will generate the release tags. You probably want your default branch in this list."
+        required: false
+        default: "master,main"
+        type: "string"
+      buildBinaries:
+        description: "Whether to build binaries from source. Defaults to `false`, pulling binaries from `toolingRepo` instead."
+        required: false
+        default: false
+        type: "boolean"
+      toolingRepo:
+        description: "The repository from which the tooling is taken for the bundle. Defaults to open-goal/jak-project."
+        required: false
+        default: "open-goal/jak-project"
+        type: "string"
+      toolingVersion:
+        description: "The version of `toolingRepo` to bundle. Defaults to latest version."
+        required: false
+        default: "latest"
+        type: "string"
+      skipWindows:
+        description: "Whether to skip Windows builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
+      skipLinux:
+        description: "Whether to skip Linux builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
+      skipMacOS:
+        description: "Whether to skip macOS builds, defaults to `false`"
+        required: false
+        default: false
+        type: "boolean"
+    secrets:
+      token:
+        description: "GitHub token used to create the release and push assets to it."
+        required: true
+    outputs:
+      taggedVersion:
+        description: "The version that was tagged and pushed for the mod"
+        value: ${{ jobs.create_release.outputs.bundleTagName }}
+
+permissions:
+  contents: write
+
+jobs:
+  validate_metadata:
+    name: "Validate Metadata"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create metadata.json"
+        env:
+          SCHEMA_VERSION: "0.1.0"
+          VERSION: "v0.0.0"
+          SUPPORTED_GAMES: ${{ inputs.metadataSupportedGames }}
+          OUT_DIR: "/tmp"
+        run: |
+          python ./__actions/mod-bundling-tools/scripts/create-mod-release/emit-metadata.py
+
+      - name: "Validating Metadata"
+        run: |
+          npm install -g ajv-cli
+          ajv validate -s ./__actions/mod-bundling-tools/schemas/mods/v2/mod-schema.v2.json -d /tmp/metadata.json
+
+  create_release:
+    name: "Create Release"
+    needs: 
+      - validate_metadata
+    runs-on: ubuntu-latest
+    outputs:
+      bundleTagName: ${{ steps.tag_version.outputs.new_tag }}
+    steps:
+      - name: Bump Version and Push Tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.token }}
+          tag_prefix: v
+          default_bump: ${{ inputs.semverBump }}
+          release_branches: ${{ inputs.releaseBranches }}
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: gh release create ${{ steps.tag_version.outputs.new_tag }} --generate-notes --draft --repo ${{ github.repository }}
+
+  # if `buildBinaries`, run the workflow to build and generate artifacts
+
+  build_windows_and_bundle:
+    name: "Windows Build & Package"
+    needs: create_release
+    if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
+    runs-on: windows-2022
+    steps:
+      - name: "Build Windows Binaries"
+        uses: ./.github/workflows/windows-build-clang.yaml
+        with:
+          cmakePreset: "Release-windows-clang-static"
+          cachePrefix: "static"
+          uploadArtifacts: true
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create_release.outputs.new_tag }}
+
+      - name: Prepare Artifact Folder
+        run: mkdir -p ./ci-artifacts
+
+      - uses: actions/download-artifact@v4
+        name: Download all Artifacts
+        with:
+          path: ./ci-artifacts/
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ./ci-artifacts/
+
+      - name: Prepare Windows Build Assets
+        run: |
+          mkdir -p ./ci-artifacts/windows
+          ./scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
+          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+    secrets: inherit
+
+  build_linux_clang:
+    name: "Linux Build & Package"
+    needs: create_release
+    if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Build Linux Binaries"
+        uses: ./.github/workflows/linux-build-clang.yaml
+        with:
+          cmakePreset: "Release-linux-clang-static"
+          cachePrefix: "static"
+          uploadArtifacts: true
+      
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create_release.outputs.new_tag }}
+
+      - name: Prepare Artifact Folder
+        run: mkdir -p ./ci-artifacts
+
+      - uses: actions/download-artifact@v4
+        name: Download all Artifacts
+        with:
+          path: ./ci-artifacts/
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ./ci-artifacts/
+
+      - name: Prepare Linux Build Assets
+        run: |
+          mkdir -p ./ci-artifacts/linux
+          ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
+          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          7z a -tzip ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.zip ./ci-artifacts/linux/*
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+    secrets: inherit
+
+  build_macos_intel:
+    name: "MacOS Build & Package"
+    needs: create_release
+    if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
+    steps:
+      - name: "Build MacOS Binaries"
+        uses: ./.github/workflows/macos-build.yaml
+        with:
+          cmakePreset: "Release-macos-clang-static"
+          cachePrefix: "static"
+          uploadArtifacts: true
+      
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create_release.outputs.new_tag }}
+
+      - name: Prepare Artifact Folder
+        run: mkdir -p ./ci-artifacts
+
+      - uses: actions/download-artifact@v4
+        name: Download all Artifacts
+        with:
+          path: ./ci-artifacts/
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ./ci-artifacts/
+
+      - name: Prepare MacOS Build Assets
+        run: |
+          mkdir -p ./ci-artifacts/macos-intel
+          ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
+          TAG_VAL=${{ needs.create_release.outputs.new_tag }}
+          7z a -tzip ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.zip ./ci-artifacts/macos-intel/*
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+    secrets: inherit
+
+  # if not `buildBinaries`, run the steps to build release assets
+
+  create_windows_bundle:
+    name: "Windows Bundle"
+    needs: create_release
+    if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create Windows Release"
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create_release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+        run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-windows.py
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  create_linux_bundle:
+    name: "Linux Bundle"
+    needs: create_release
+    if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create Linux Release"
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create_release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+        run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-linux.py
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  create_macos_intel_bundle:
+    name: "macOS Intel Bundle"
+    needs: create_release
+    if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: "Create MacOS Intel Release"
+        env:
+          outputDir: ${{ inputs.outputDir }}
+          versionName: ${{ needs.create_release.outputs.bundleTagName }}
+          toolingRepo: ${{ inputs.toolingRepo }}
+          toolingVersion: ${{ inputs.toolingVersion }}
+        run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-macos.py
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel
+          if-no-files-found: error
+          path: ${{ inputs.outputDir }}/dist
+
+  finalize-release:
+    name: "Finalize Release"
+    needs: 
+      - create_release
+      - build_windows_clang
+      - build_linux_clang
+      - build_macos_intel
+      - create_windows_bundle
+      - create_linux_bundle
+      - create_macos_intel_bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Workflow Scripts"
+        uses: actions/checkout@v4
+        with:
+          repository: "open-goal/mod-bundling-tools"
+          ref: ${{ github.event.inputs.ref }}
+          path: "__actions/mod-bundling-tools"
+
+      - name: Prepare Output Folder
+        run: mkdir -p ${{ inputs.outputDir }}/dist
+
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ inputs.outputDir }}/artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -Rl ${{ inputs.outputDir }}
+
+      - name: Move Linux Assets
+        if: ${{ !inputs.skipLinux }}
+        run: mv ${{ inputs.outputDir }}/artifacts/linux/* ${{ inputs.outputDir }}/dist
+
+      - name: Move Windows Assets
+        if: ${{ !inputs.skipWindows }}
+        run: mv ${{ inputs.outputDir }}/artifacts/windows/* ${{ inputs.outputDir }}/dist
+
+      - name: Move MacOS Assets
+        if: ${{ !inputs.skipMacOS }}
+        run: mv ${{ inputs.outputDir }}/artifacts/macos-intel/* ${{ inputs.outputDir }}/dist
+      
+      - name: Prepare Release Metadata
+        env:
+          SCHEMA_VERSION: "0.1.0"
+          VERSION: ${{ needs.create_release.outputs.bundleTagName }}
+          SUPPORTED_GAMES: ${{ inputs.metadataSupportedGames }}
+          OUT_DIR: "${{ inputs.outputDir }}/dist"
+        run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/emit-metadata.py
+
+      - name: Validating Metadata
+        run: |
+          npm install -g ajv-cli
+          ajv validate -s ./__actions/mod-bundling-tools/schemas/mods/v2/mod-schema.v2.json -d ${{ inputs.outputDir }}/dist/metadata.json
+
+      - name: Upload Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: |
+          TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          gh release upload "${TAG_VAL}" ${{ github.WORKSPACE }}/${{ inputs.outputDir }}/dist/* --repo ${{ github.repository }} --clobber
+
+      - name: Publish Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: |
+          TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
+          echo $TAG_VAL
+          gh release edit ${TAG_VAL} --draft=false --repo ${{ github.repository }}
