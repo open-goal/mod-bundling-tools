@@ -128,30 +128,25 @@ jobs:
   bundle_windows_build:
     name: "Bundle Windows Build"
     needs: build_windows_clang
-    if: ${{ always() }}
+    if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
       - name: Prepare Artifact Folder
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         run: mkdir -p ./ci-artifacts
 
       - uses: actions/download-artifact@v4
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         name: Download all Artifacts
         with:
           path: ./ci-artifacts/
 
       - name: Display structure of downloaded files
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         run: ls -Rl ./ci-artifacts/
 
       - name: Prepare Windows Build Assets
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         run: |
           mkdir -p ./ci-artifacts/windows
           ./scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
@@ -159,7 +154,6 @@ jobs:
           7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -180,30 +174,25 @@ jobs:
   bundle_linux_build:
     name: "Bundle Linux Build"
     needs: build_linux_clang
-    if: ${{ always() }}
+    if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:      
       - uses: actions/checkout@v4
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
       - name: Prepare Artifact Folder
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         run: mkdir -p ./ci-artifacts
 
       - uses: actions/download-artifact@v4
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         name: Download all Artifacts
         with:
           path: ./ci-artifacts/
 
       - name: Display structure of downloaded files
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         run: ls -Rl ./ci-artifacts/
 
       - name: Prepare Linux Build Assets
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         run: |
           mkdir -p ./ci-artifacts/linux
           ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
@@ -211,7 +200,6 @@ jobs:
           7z a -tzip ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.zip ./ci-artifacts/linux/*
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: linux
@@ -232,30 +220,25 @@ jobs:
   bundle_macos_build:
     name: "Bundle MacOS Build"
     needs: build_macos_intel
-    if: ${{ always() }}
+    if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         with:
           ref: ${{ needs.create_release.outputs.new_tag }}
 
       - name: Prepare Artifact Folder
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         run: mkdir -p ./ci-artifacts
 
       - uses: actions/download-artifact@v4
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         name: Download all Artifacts
         with:
           path: ./ci-artifacts/
 
       - name: Display structure of downloaded files
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         run: ls -Rl ./ci-artifacts/
 
       - name: Prepare MacOS Build Assets
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         run: |
           mkdir -p ./ci-artifacts/macos-intel
           ./scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
@@ -263,7 +246,6 @@ jobs:
           7z a -tzip ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.zip ./ci-artifacts/macos-intel/*
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: macos-intel
@@ -275,15 +257,13 @@ jobs:
   bundle_windows_no_build:
     name: "Bundle Windows (no build)"
     needs: create_release
-    if: ${{ always() }}
+    if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
         uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
-        if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
         uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
@@ -291,7 +271,6 @@ jobs:
           path: "__actions/mod-bundling-tools"
 
       - name: "Create Windows Release"
-        if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create_release.outputs.bundleTagName }}
@@ -300,7 +279,6 @@ jobs:
         run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-windows.py
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipWindows && !inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -310,15 +288,13 @@ jobs:
   bundle_linux_no_build:
     name: "Bundle Linux (no build)"
     needs: create_release
-    if: ${{ always() }}
+    if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
         uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
-        if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
         uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
@@ -326,7 +302,6 @@ jobs:
           path: "__actions/mod-bundling-tools"
 
       - name: "Create Linux Release"
-        if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create_release.outputs.bundleTagName }}
@@ -335,7 +310,6 @@ jobs:
         run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-linux.py
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipLinux && !inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: linux
@@ -345,15 +319,13 @@ jobs:
   bundle_macos_no_build:
     name: "Bundle macOS Intel (no build)"
     needs: create_release
-    if: ${{ always() }}
+    if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
         uses: actions/checkout@v4
 
       - name: "Checkout Workflow Scripts"
-        if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
         uses: actions/checkout@v4
         with:
           repository: "open-goal/mod-bundling-tools"
@@ -361,7 +333,6 @@ jobs:
           path: "__actions/mod-bundling-tools"
 
       - name: "Create MacOS Intel Release"
-        if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
         env:
           outputDir: ${{ inputs.outputDir }}
           versionName: ${{ needs.create_release.outputs.bundleTagName }}
@@ -370,7 +341,6 @@ jobs:
         run: python ./__actions/mod-bundling-tools/scripts/create-mod-release/bundle-macos.py
 
       - name: Upload Bundle
-        if: ${{ !inputs.skipMacOS && !inputs.buildBinaries }}
         uses: actions/upload-artifact@v4
         with:
           name: macos-intel
@@ -387,6 +357,15 @@ jobs:
       - bundle_windows_no_build
       - bundle_linux_no_build
       - bundle_macos_no_build
+    if: |
+      always() &&
+      needs.create_release.result == 'success'
+      (needs.bundle_windows_build.result == 'skipped' || needs.bundle_windows_build.result == 'success') &&
+      (needs.bundle_linux_build.result == 'skipped' || needs.bundle_linux_build.result == 'success') &&
+      (needs.bundle_macos_build.result == 'skipped' || needs.bundle_macos_build.result == 'success') &&
+      (needs.bundle_windows_no_build.result == 'skipped' || needs.bundle_windows_no_build.result == 'success') &&
+      (needs.bundle_linux_no_build.result == 'skipped' || needs.bundle_linux_no_build.result == 'success') &&
+      (needs.bundle_macos_no_build.result == 'skipped' || needs.bundle_macos_no_build.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Workflow Scripts"
