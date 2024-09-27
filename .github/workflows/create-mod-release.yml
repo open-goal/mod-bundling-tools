@@ -126,6 +126,7 @@ jobs:
           cmakePreset: "Release-windows-clang-static"
           cachePrefix: "static"
           uploadArtifacts: true
+        secrets: inherit
 
       - uses: actions/checkout@v4
         with:
@@ -155,7 +156,6 @@ jobs:
           name: windows
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
-    secrets: inherit
 
   build_linux_clang:
     name: "Linux Build & Package"
@@ -169,6 +169,7 @@ jobs:
           cmakePreset: "Release-linux-clang-static"
           cachePrefix: "static"
           uploadArtifacts: true
+        secrets: inherit
       
       - uses: actions/checkout@v4
         with:
@@ -198,7 +199,6 @@ jobs:
           name: linux
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
-    secrets: inherit
 
   build_macos_intel:
     name: "MacOS Build & Package"
@@ -211,6 +211,7 @@ jobs:
           cmakePreset: "Release-macos-clang-static"
           cachePrefix: "static"
           uploadArtifacts: true
+        secrets: inherit
       
       - uses: actions/checkout@v4
         with:
@@ -240,8 +241,6 @@ jobs:
           name: macos-intel
           if-no-files-found: error
           path: ${{ inputs.outputDir }}/dist
-
-    secrets: inherit
 
   # if not `buildBinaries`, run the steps to build release assets
 
