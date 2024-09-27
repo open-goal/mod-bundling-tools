@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    name: Clang
+    name: Build Linux Clang
     runs-on: ubuntu-20.04
     timeout-minutes: 60
 

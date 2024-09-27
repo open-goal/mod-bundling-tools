@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    name: Clang
+    name: Build Windows Clang
     runs-on: windows-2022
     # Set some sort of timeout in the event of run-away builds.  We are limited on concurrent jobs so, get rid of them.
     timeout-minutes: 60

@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    name: Intel
+    name: Build MacOS Intel
     runs-on: macos-12
     timeout-minutes: 120
 
