@@ -52,21 +52,6 @@ on:
         required: false
         default: false
         type: "boolean"
-      windowsBuildWorkflow:
-        description: "Workflow path for building Windows binaries, defaults to `open-goal/jak-project/.github/workflows/windows-build-clang.yaml@master`"
-        required: false
-        default: "open-goal/jak-project/.github/workflows/windows-build-clang.yaml@master"
-        type: "string"
-      linuxBuildWorkflow:
-        description: "Workflow path for building Linux binaries, defaults to `open-goal/jak-project/.github/workflows/linux-build-clang.yaml@master`"
-        required: false
-        default: "open-goal/jak-project/.github/workflows/linux-build-clang.yaml@master"
-        type: "string"
-      macOsBuildWorkflow:
-        description: "Workflow path for building MacOS Intel binaries, defaults to `open-goal/jak-project/.github/workflows/macos-build.yaml@master`"
-        required: false
-        default: "open-goal/jak-project/.github/workflows/macos-build.yaml@master"
-        type: "string"
     secrets:
       token:
         description: "GitHub token used to create the release and push assets to it."
