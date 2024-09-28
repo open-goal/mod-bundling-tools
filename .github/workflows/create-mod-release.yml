@@ -118,6 +118,7 @@ jobs:
     name: "Windows Build"
     needs: create_release
     if: ${{ !inputs.skipWindows && inputs.buildBinaries }}
+    # assumes that this file is defined in your mod repo
     uses: ./.github/workflows/windows-build-clang.yaml
     with:
       cmakePreset: "Release-windows-clang-static"
@@ -160,7 +161,7 @@ jobs:
           mkdir -p ./ci-artifacts/windows
           mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh
-          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/windows-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_windows.sh ./ci-artifacts/windows ./ci-artifacts/opengoal-windows-static ./
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           7z a -tzip ${{ inputs.outputDir }}/dist/windows-${TAG_VAL}.zip ./ci-artifacts/windows/*
 
@@ -175,6 +176,7 @@ jobs:
     name: "Linux Build"
     needs: create_release
     if: ${{ !inputs.skipLinux && inputs.buildBinaries }}
+    # assumes that this file is defined in your mod repo
     uses: ./.github/workflows/linux-build-clang.yaml
     with:
       cmakePreset: "Release-linux-clang-static"
@@ -217,7 +219,7 @@ jobs:
           mkdir -p ./ci-artifacts/linux
           mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
-          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/linux-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/linux ./ci-artifacts/opengoal-linux-static ./
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           tar czf ${{ inputs.outputDir }}/dist/linux-${TAG_VAL}.tar.gz ./ci-artifacts/linux
 
@@ -232,6 +234,7 @@ jobs:
     name: "MacOS Build"
     needs: create_release
     if: ${{ !inputs.skipMacOS && inputs.buildBinaries }}
+    # assumes that this file is defined in your mod repo
     uses: ./.github/workflows/macos-build.yaml
     with:
       cmakePreset: "Release-macos-clang-static"
@@ -274,7 +277,7 @@ jobs:
           mkdir -p ./ci-artifacts/macos-intel
           mkdir -p ${{ inputs.outputDir }}/dist
           chmod +x ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh
-          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/macos-intel-binary ./
+          ./__actions/mod-bundling-tools/scripts/create-mod-release/releases/extract_build_unix.sh ./ci-artifacts/macos-intel ./ci-artifacts/opengoal-macos-static ./
           TAG_VAL=${{ needs.create_release.outputs.bundleTagName }}
           tar czf ${{ inputs.outputDir }}/dist/macos-intel-${TAG_VAL}.tar.gz ./ci-artifacts/macos-intel
 
